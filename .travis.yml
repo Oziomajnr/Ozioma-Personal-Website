@@ -18,7 +18,7 @@ matrix:
 
     cache: bundler # caching bundler gem packages will speed up build
 
-   - language: node_js
+  - language: node_js
     before_script:
         - cd /
      node_js:
