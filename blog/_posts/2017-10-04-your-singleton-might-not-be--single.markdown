@@ -4,7 +4,10 @@ title:	"Your singleton might not be “Single”."
 date:	2017-10-04
 ---
 
-![](/img/0CAvq1Jb3ynFuSwnG.)
+<p align="center">
+ <img src="img/0CAvq1Jb3ynFuSwnG.png" alt="Singleton Diagram">
+</p>
+ 
 
 Source: <https://dzone.com/articles/java-singletons-using-enum>[](https://en.wikipedia.org/wiki/Singleton_pattern)
  
@@ -17,7 +20,9 @@ Source: <https://dzone.com/articles/java-singletons-using-enum>[](https://en.wik
 3. Permits refinement of operations and representation.
 4. Permits a variable number of instances.
 5. More flexible than class operations.
-Web application developers have often found it useful as a form of caching mechanism using it to hold some data that needs to be accessed so often that that fetching it from the database might be a performance overhead, example of that might be **access token** for API authorization.
+Web application developers have often found it useful as a form of caching mechanism using it to hold some data that
+ needs to be accessed so often that that fetching it from the database might be a performance overhead, 
+ example of that might be **access token** for API authorization.
 
 But Singleton have often been described as an software
  [**Anti Pattern**](https://en.wikipedia.org/wiki/Anti-pattern#Software_design) 
