@@ -1,9 +1,33 @@
-language: node_js
-node_js:
-  - "node"
-script:
-  -
-deploy:
-  provider: firebase
-  token:
-    secure: "L2+WV4A5HHUMdg0vodwu6AwTCcHj7xNOK+F7Z4u7X4VVJLcC9Sr0ZPilay+EuyNmoMfwaXiA+KIpkyjbFj0EdHY7xeuPSufrIeEV4RmWyDfP7cXTmllPbXtEY4WuOvJ2g1MTSw2/lWYdITN1VGeaD0W0sHKjfLc+Pkf0SEnUMJ3hZITYxmaCY9u0GGBsOBKGSeDHqvG4HaAS5hX8evU0scnGgFTIH5TXWW/cdoA7RuY0rvvF4wdD6fBaSR1OtdTmA1r0dpybIXldjvGdP/JxQfy8yYehXHYBFVDcS8yjpIIIoi+BEwb36XVxPflLNhu5x2rZT62c7BB4bY9g6X+Z2vsM13QD4BYXOmRE5diF2yV2ql/FZqsRvrjHr9gxlCw66yQ0yrspL1RZXwoA80tBkO+zAF9CRSHT+i9JzcjjAA3tUrUiDZVg4gMHxIrvVWtCFsi3BKNad6YgEBo12mdC5+pKGaX9CZ0VxvBqIwmTRskr5KXRnMcG4l4xzYcBb5nlUTsPYbxYXAbiFJAzI4cvmwGPoZkLZZ1DQLRytzSOjL4WA34rWIde6PxRwt8O2MfnMRy9weNU7I19xrwKCrv05Mm9JdBixgPG/7WO46QZWxpjyEyNL4BUKYdhOWBYPbmEU4C2L15f114Th9K1w/DPgd4rPnmEQ1DY8X/tDMSDbjY="
+matrix:
+  include:
+  - language: ruby
+    rvm:
+      - 2.4.1
+    before_script:
+     - cd /blog
+     - chmod +x ./script/cibuild
+    script: ./script/cibuild
+    env:
+      global:
+      - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # speeds up installation of html-proofer
+    addons:
+      apt:
+        packages:
+        - libcurl4-openssl-dev
+    sudo: false # route your build to the container-based infrastructure for a faster build
+
+    cache: bundler # caching bundler gem packages will speed up build
+
+   - language: node_js
+    before_script:
+        - cd /
+     node_js:
+       - "node"
+     script:
+       -
+  deploy:
+         provider: firebase
+         token:
+           secure: "L2+WV4A5HHUMdg0vodwu6AwTCcHj7xNOK+F7Z4u7X4VVJLcC9Sr0ZPilay+EuyNmoMfwaXiA+KIpkyjbFj0EdHY7xeuPSufrIeEV4RmWyDfP7cXTmllPbXtEY4WuOvJ2g1MTSw2/lWYdITN1VGeaD0W0sHKjfLc+Pkf0SEnUMJ3hZITYxmaCY9u0GGBsOBKGSeDHqvG4HaAS5hX8evU0scnGgFTIH5TXWW/cdoA7RuY0rvvF4wdD6fBaSR1OtdTmA1r0dpybIXldjvGdP/JxQfy8yYehXHYBFVDcS8yjpIIIoi+BEwb36XVxPflLNhu5x2rZT62c7BB4bY9g6X+Z2vsM13QD4BYXOmRE5diF2yV2ql/FZqsRvrjHr9gxlCw66yQ0yrspL1RZXwoA80tBkO+zAF9CRSHT+i9JzcjjAA3tUrUiDZVg4gMHxIrvVWtCFsi3BKNad6YgEBo12mdC5+pKGaX9CZ0VxvBqIwmTRskr5KXRnMcG4l4xzYcBb5nlUTsPYbxYXAbiFJAzI4cvmwGPoZkLZZ1DQLRytzSOjL4WA34rWIde6PxRwt8O2MfnMRy9weNU7I19xrwKCrv05Mm9JdBixgPG/7WO46QZWxpjyEyNL4BUKYdhOWBYPbmEU4C2L15f114Th9K1w/DPgd4rPnmEQ1DY8X/tDMSDbjY="
+
+
