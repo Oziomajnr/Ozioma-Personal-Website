@@ -22,8 +22,11 @@ url: "https://oziomaogbe.com" # the base hostname & protocol for your site, e.g.
 twitter_username: oziomajnr
 github_username:  oziomajnr
 linkedin_username: oziomajnr
-stackoverflow_username: 3937903/ogbe
-
+stackoverflow_username: ogbe
+stackoverflow_number: 3937903
+disqus:
+    shortname: my_disqus_shortname
+show_excerpts: true
 # Build settings
 markdown: kramdown
 theme: minima
