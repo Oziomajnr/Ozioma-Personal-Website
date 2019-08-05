@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "ozioma-personal-website"
+  },
+  "targets": {
+    "ozioma-personal-website": {
+      "hosting": {
+        "blog": [
+          "ozioma-blog"
+        ],
+        "website": [
+          "ozioma-personal-website"
+        ]
+      }
+    }
   }
 }
