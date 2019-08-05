@@ -4,7 +4,7 @@ title:	"Paystack Payment flow with Java , Part 1. Initializing transactions"
 date:	2017-11-01
 ---
 
-b'\n\n\n\nI recently had to implement Paystack payment into a java web application and I was impressed with the payment flow and how easy it was to implement. One part I liked so much is that you do not have to send a request after initiating payment to verify if the payment was successful instead they send you a request to verify a transaction or to notify you of its failure.
+I recently had to implement Paystack payment into a java web application and I was impressed with the payment flow and how easy it was to implement. One part I liked so much is that you do not have to send a request after initiating payment to verify if the payment was successful instead they send you a request to verify a transaction or to notify you of its failure.
 
 Today, I would demonstrate how to initialize a paystack transaction, and generate a payment url.
 
@@ -36,4 +36,4 @@ So we after getting the result in our response class, we can pass the authorizat
 
 So that is a simple demonstration on how to initialize a paystack transaction, **next **we would verify if the user has paid and apply value to the payment.
 
-\n\n'
+'

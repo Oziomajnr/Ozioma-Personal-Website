@@ -4,7 +4,7 @@ title:	"Paystack Payment flow with Java , Part 2. Verifying payments."
 date:	2017-11-07
 ---
 
-b'\n\n\n\nFrom my previous article on [Initializing paystack transaction](https://medium.com/@Oziomajnr/paystack-payment-flow-with-java-part-1-initializing-transactions-9876c99c9a9f) we initialized a transaction and got a payment url for the user to make payment using paystack, today we would verify if the user has completed his payment.
+From my previous article on [Initializing paystack transaction](https://medium.com/@Oziomajnr/paystack-payment-flow-with-java-part-1-initializing-transactions-9876c99c9a9f) we initialized a transaction and got a payment url for the user to make payment using paystack, today we would verify if the user has completed his payment.
 
 To verify a transaction, we send a request GET request to the paysatck verification url, passing the** reference** we generated when making the transaction as a **path parameter.**
 
@@ -28,4 +28,4 @@ Line 27 does the trick, it checks if the status of the data object is success an
 
 Note: You do not have to trigger this method manually to verify a transaction, Paystack makes a charge event call to the webhook url you provided on your dashboard to confirm if a transaction is successful or if it failed. In part 3 of this tutorial we would learn how to catch paystack charge event and automatically verify transactions.
 
-\n\n'
+'

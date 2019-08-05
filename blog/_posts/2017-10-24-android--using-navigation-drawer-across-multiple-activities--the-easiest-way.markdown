@@ -4,7 +4,7 @@ title:	"Android, Using Navigation Drawer Across Multiple Activities: The easiest
 date:	2017-10-24
 ---
 
-b'\n\n\n\nThe Navigation Drawer is a very important component in an android application as it allows users to easily navigate to different parts of your application without having to go through some set of Activities and fragments. We often need to have our navigation drawer in many activities and it would be painful if we have to repeat the code for creating the drawer in different activities, that would also go against the **DRY** principle.
+The Navigation Drawer is a very important component in an android application as it allows users to easily navigate to different parts of your application without having to go through some set of Activities and fragments. We often need to have our navigation drawer in many activities and it would be painful if we have to repeat the code for creating the drawer in different activities, that would also go against the **DRY** principle.
 
 One way of solving this problem is to create a Base Activity that would have the Navigation Drawer and all other activities that needs to have the Navigation Drawer would inherit from that Activity.
 
@@ -32,4 +32,4 @@ DrawerUtil.getDrawer(**this**,**toolBar**);
 
 You can check out the [MATERIAL DESIGN DRAWER](https://github.com/mikepenz/MaterialDrawer) library for examples on how to use the drawer library for other features.
 
-\n\n'
+'

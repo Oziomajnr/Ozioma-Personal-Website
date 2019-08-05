@@ -4,7 +4,7 @@ title:	"Communicating between components in Java Using Guava Event Bus"
 date:	2018-08-13
 ---
 
-b'\n\n\n\n![](/img/1*h9fw9-AbGIqjEskbK-Rf6A.png)<https://raw.githubusercontent.com/greenrobot/EventBus/master/EventBus-Publish-Subscribe.png>One common situation that arises when building enterprise application is [implementing](https://hackernoon.com/tagged/implementing) a chain of business processes after one process is [successful](https://hackernoon.com/tagged/successful), for example, if you are building a shopping website, you might want to do the following after payment for a product is successful
+![](/img/1*h9fw9-AbGIqjEskbK-Rf6A.png)<https://raw.githubusercontent.com/greenrobot/EventBus/master/EventBus-Publish-Subscribe.png>One common situation that arises when building enterprise application is [implementing](https://hackernoon.com/tagged/implementing) a chain of business processes after one process is [successful](https://hackernoon.com/tagged/successful), for example, if you are building a shopping website, you might want to do the following after payment for a product is successful
 
 1. Reduce the number of items available in the store after the purchase.
 2. Send the shop owner a receipt for the purchase.
@@ -87,4 +87,4 @@ This would trigger all methods that have the Payment event as their argument and
 
 **Feels free to share you thoughts in the comments, I want to hear your experience implementing this pattern.**
 
-\n\n'
+'

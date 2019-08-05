@@ -4,7 +4,7 @@ title:	"ANDROID: Browsing Realm Database On Windows."
 date:	2017-10-08
 ---
 
-b'\n\n\n\nI recently started using [Realm](http://realm.io/) as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy.
+I recently started using [Realm](http://realm.io/) as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy.
 
 But as with every other database, you often need to view its content without using the view from your application directly, [Realm](http://realm.io/) provides a solution for that through the[ Realm Browser](https://academy.realm.io/posts/realm-browser-tutorial/). With the realm browser you can view and even edit the data from your realm database. The only problem is that realm browser is only available for MAC and UBUNTU operating systems but unfortunately its not available for WINDOWS.
 
@@ -86,4 +86,4 @@ To view our realm db data, click on **inspect** from the app section. This would
 
 ![](/img/1*E-270s1JDrm7VlvpQNanDQ.png)If you found this article helpful please support it with as many claps as you can, I would also welcome comments.
 
-\n\n'
+'

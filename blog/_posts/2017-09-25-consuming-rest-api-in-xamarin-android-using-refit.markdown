@@ -4,7 +4,7 @@ title:	"Consuming REST API in Xamarin.Android using REFIT"
 date:	2017-09-25
 ---
 
-b'\n\n\n\nWhile developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is **RETROFIT**, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is **REFIT**(the name tells its all).
+While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is **RETROFIT**, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is **REFIT**(the name tells its all).
 
 In this tutorial we would learn how to make api calls using refit, we would be getting a list of developers in a location from github, I have decided to list developers in Lagos, Nigeria where I live, you can decide to add your own city! The result of our search would be displayed on a List View.
 
@@ -81,7 +81,7 @@ namespace ConnecingToApiExample.Model
  [JsonProperty(PropertyName = "incomplete\_results")]  
  public string incompleteResults { get; set; }  
   
- [JsonProperty(PropertyName = "items")]  
+ [JsonProperty(PropertyName = "items")]  b`
  public List<User> items { get; set; }  
   
  public override string ToString()  
@@ -161,7 +161,7 @@ To design the user interface open main.xml and add the following source code
  android:layout\_width="match\_parent"  
  android:layout\_height="wrap\_content"  
  android:text="List Users"  
- android:id="@+id/btn\_list\_users" />  
+ android:id="@+id/bt_list\_users" />  
  <ListView  
  android:layout\_width="match\_parent"  
  android:layout\_height="match\_parent"  
@@ -216,9 +216,9 @@ First we get the reference to the main.xml, then to the button and then the List
 
 base.OnCreate(bundle);  
 SetContentView(Resource.Layout.Main);  
-cake\_lyf\_button = FindViewById<Button>(Resource.Id.btn\_list\_users);  
+cake\_lyf\_button = FindViewById<Button>(Resource.Id.bt_list\_users);  
  listView = FindViewById<ListView>(Resource.Id.listview\_users);  
- cake\_lyf\_button.Click += Cake\_lyf\_button\_Click;…### 8. Make the API Call
+ cake\_lyf\_button.Click += Cake\_lyf\_butto_Click;…### 8. Make the API Call
 
 Let’s create a method that would make the API call and fill in the List of Users with the result, then convert the result to string and use the string to populate the list of user names. Then use that list of user names to populate the list view in the UI. The method that would do that is given below:
 
@@ -247,7 +247,7 @@ ApiResponse response = await gitHubApi.GetUser();is responsible for making the A
 
 This method is called when the button is clicked so we just call it in the button clicked event handler of the button as shown below:
 
-private void Cake\_lyf\_button\_Click(object sender, EventArgs e){  
+private void Cake\_lyf\_butto_Click(object sender, EventArgs e){  
  getUsers();  
  }After you run the application and the button is clicked, this is the result.
 
@@ -294,9 +294,9 @@ namespace ConnecingToApiExample
  base.OnCreate(bundle);  
   
  SetContentView(Resource.Layout.Main);  
- cake\_lyf\_button = FindViewById<Button>(Resource.Id.btn\_list\_users);  
+ cake\_lyf\_button = FindViewById<Button>(Resource.Id.bt_list\_users);  
  listView = FindViewById<ListView>(Resource.Id.listview\_users);  
- cake\_lyf\_button.Click += Cake\_lyf\_button\_Click;  
+ cake\_lyf\_button.Click += Cake\_lyf\_butto_Click;  
   
  JsonConvert.DefaultSettings =()=> new JsonSerializerSettings()  
  {  
@@ -313,7 +313,7 @@ namespace ConnecingToApiExample
  }  
  }  
   
- private void Cake\_lyf\_button\_Click(object sender, EventArgs e)  
+ private void Cake\_lyf\_butto_Click(object sender, EventArgs e)  
  {  
  getUsers();  
  }  
@@ -351,7 +351,7 @@ namespace ConnecingToApiExample
  android:layout\_width="match\_parent"  
  android:layout\_height="wrap\_content"  
  android:text="List Users"  
- android:id="@+id/btn\_list\_users" />  
+ android:id="@+id/bt_list\_users" />  
  <ListView  
  android:layout\_width="match\_parent"  
  android:layout\_height="match\_parent"  
@@ -415,4 +415,4 @@ namespace ConnecingToApiExample.Interface
 }I have also added the source code of this tutorial in my git repository here:
 
 [**Oziomajnr/Xamarin-Refit-Api-Connection**  
-*Xamarin-Refit-Api-Connection - A simple Xamarin android application to demonstrate how to easily connect to an api…*github.com](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample "https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample")[](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample)\n\n'
+*Xamarin-Refit-Api-Connection - A simple Xamarin android application to demonstrate how to easily connect to an api…*github.com](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample "https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample")[](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample)

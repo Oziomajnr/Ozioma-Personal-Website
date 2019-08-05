@@ -4,7 +4,7 @@ title:	"Your singleton might not be “Single”."
 date:	2017-10-04
 ---
 
-b'\n\n\n\n![](/img/0*CAvq1Jb3ynFuSwnG.)Source: <https://dzone.com/articles/java-singletons-using-enum>[Singleton](https://en.wikipedia.org/wiki/Singleton_pattern) have been a very popular design pattern as it is proven t+
+![](/img/0*CAvq1Jb3ynFuSwnG.)Source: <https://dzone.com/articles/java-singletons-using-enum>[Singleton](https://en.wikipedia.org/wiki/Singleton_pattern) have been a very popular design pattern as it is proven t+
 
 o have some advantages compared to global variables, the [**Gang of four**](https://en.wikipedia.org/wiki/Design_Patterns) book listed the following benefits of using singleton:
 
@@ -36,4 +36,4 @@ If you have data that has to be accessed often you could use a cache system like
 
 So if you are not absolutely sure that your singleton would have one and only one instance then you should **never **use it to handle data that has to do with the business logic of your application.
 
-\n\n'
+'
