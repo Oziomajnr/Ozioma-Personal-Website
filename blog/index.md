@@ -4,3 +4,12 @@
 
 layout: home
 ---
+
+<p align="center">
+ <img src="ozioma_picture.jpg" alt="Ozioma Ogbe">
+</p>
+
+# Ozioma Ogbe
+
+Software Engineer
+
