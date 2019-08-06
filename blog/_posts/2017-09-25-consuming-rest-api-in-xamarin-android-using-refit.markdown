@@ -297,7 +297,7 @@ First we get the reference to the main.xml, then to the button and then the List
  cake_lyf_button.Click += Cake_lyf_butto_Click;…
  ```
  
- ### 8. Make the API Call
+### 8. Make the API Call
  
 
 Let’s create a method that would make the API call and fill in the List of Users with the result, then convert 
