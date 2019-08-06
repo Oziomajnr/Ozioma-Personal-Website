@@ -56,9 +56,9 @@ We need a C# class to model our response we would be getting from the github api
 
 so that would give us our result in JSON, then we can use it to know what our response model would look like. I would make the request using postman, but you can use your web browser
 
-![](/img/1JjpFxbuht7DRonestTXRfw.png
+![](/img/1JjpFxbuht7DRonestTXRfw.png)
 
-)From the structure of the JSON response we can see that it contains the following
+From the structure of the JSON response we can see that it contains the following
 
 · The total number of result (total\_count).
 
@@ -194,23 +194,25 @@ To design the user interface open main.xml and add the following source code
 <?xml version="1.0" encoding="utf-8"?>  
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"  
  android:orientation="vertical"  
- android:layout\_width="match\_parent"  
- android:layout\_height="match\_parent">  
+ android:layout_width="match_parent"  
+ android:layout_height="match_parent">  
  <Button  
- android:layout\_width="match\_parent"  
- android:layout\_height="wrap\_content"  
+ android:layout_width="match_parent"  
+ android:layout_height="wrap_content"  
  android:text="List Users"  
- android:id="@+id/bt_list\_users" />  
+ android:id="@+id/bt_list_users" />  
  <ListView  
- android:layout\_width="match\_parent"  
- android:layout\_height="match\_parent"  
- android:id="@+id/listview\_users"  
+ android:layout_width="match_parent"  
+ android:layout_height="match_parent"  
+ android:id="@+id/listview_users"  
  android:background="#000000" />  
 </LinearLayout>
 ```
 This is how the UI should look in the main layout
 
-![](/img/1lrDZ9l7KaK8BmllTubZ8ew.png)So now that the User Interface is set up lets go to 
+![](/img/1lrDZ9l7KaK8BmllTubZ8ew.png)
+
+So now that the User Interface is set up lets go to 
 the main part of the program that would start off the API call process.
 
 First of all, let’s declare the global Refit settings.
@@ -227,13 +229,13 @@ we can do that by adding the following code snippet to the onCreate() method of 
 
 ```cs
 // declare the global settings
-
-JsonConvert.DefaultSettings =()=> new JsonSerializerSettings()  
- {  
- ContractResolver = new CamelCasePropertyNamesContractResolver(),  
- Converters = { new StringEnumConverter() }  
- };And add the following reference for the code to function properly
-
+JsonConvert.DefaultSettings =()=> new JsonSerializerSettings() {  
+  ContractResolver = new CamelCasePropertyNamesContractResolver(),  
+  Converters = { new StringEnumConverter() }  
+ };
+```
+ And add the following reference for the code to function properly
+```cs
 **using Newtonsoft.Json.Serialization;  
 using Newtonsoft.Json.Converters;  
 using Newtonsoft.Json;**Then we define our global variables in the MainActivity as follows:
