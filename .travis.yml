@@ -7,7 +7,7 @@ script:
   - gem install bundler
   - bundler update --bundler
   - gem install jekyll bundler
-  - bundle exec jekyll build --verbose
+  - JEKYLL_ENV=production bundle exec jekyll build --verbose
   - cd ..
   - ls
 deploy:
