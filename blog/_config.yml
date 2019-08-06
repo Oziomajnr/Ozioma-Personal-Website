@@ -26,7 +26,7 @@ stackoverflow_username: ogbe
 stackoverflow_number: 3937903
 google_analytics: UA-145161693-1
 disqus:
-    shortname: my_disqus_shortname
+    shortname: oziomas-website
 show_excerpts: true
 # Build settings
 markdown: kramdown
