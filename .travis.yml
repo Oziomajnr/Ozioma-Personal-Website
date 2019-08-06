@@ -3,7 +3,10 @@ rvm: 2.4.1
 before_script:
   - cd blog
 script:
-  - bundle install && gem install jekyll bundler && bundle exec jekyll build --verbose
+  - bundle uninstall
+  - bundle install
+  - gem install jekyll bundler
+  - bundle exec jekyll build --verbose
 deploy:
   provider: firebase
   token:
