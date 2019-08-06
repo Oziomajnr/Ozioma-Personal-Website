@@ -11,7 +11,7 @@ date:	2017-10-04
 
 Source: <https://dzone.com/articles/java-singletons-using-enum>[](https://en.wikipedia.org/wiki/Singleton_pattern)
  
- luxyffcn is a very popular design pattern as it is proven to have some advantages compared to global variables, 
+ Singleton is a very popular design pattern as it is proven to have some advantages compared to global variables, 
  the [**Gang of four**](https://en.wikipedia.org/wiki/Design_Patterns) 
  book listed the following benefits of using singleton:
 
@@ -20,7 +20,8 @@ Source: <https://dzone.com/articles/java-singletons-using-enum>[](https://en.wik
 3. Permits refinement of operations and representation.
 4. Permits a variable number of instances.
 5. More flexible than class operations.
-Web application developers have often found it useful as a form of caching mechanism using it to hold some data that
+
+Web application developers often find it useful as a form of caching mechanism using it to hold some data that
  needs to be accessed so often that that fetching it from the database might be a performance overhead, 
  example of that might be **access token** for API authorization.
 

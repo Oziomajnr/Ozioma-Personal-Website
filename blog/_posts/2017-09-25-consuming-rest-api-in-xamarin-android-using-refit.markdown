@@ -49,7 +49,9 @@ From visual studio start a new Xamarin.Android project, select a blank project t
 
 ![](https://cdn-images-1.medium.com/max/800/1*d_j8dEoKeEbMPuyk_eXoVQ.png)
 
-Start a new Xamarin.Android Project### 2. Add reference to the REFIT Packages from Nugget
+Start a new Xamarin.Android Project
+
+### 2. Add reference to the REFIT Packages from Nugget
 
 From the solution explorer, right click on reference then from the menu click on manage nugget packages, 
 this would open up the nugget package manager window, then select the browse tab and search for **refit**.
@@ -62,7 +64,7 @@ From the search result install the refit library by Paul Betts to the current pr
 Installing this package would install both Refit dependency and other dependencies we would need to deserialize the JSON.
  So we are all set with what we need to build the app. Then we need to define the model of our response and user.
 
-###3. Define the Response model
+### 3. Define the Response model
 
 We need a C# class to model our response we would be getting from the github api, but first of all let’s see what 
 the response looks like in JSON. The URL that I need to list github developers in Lagos is
@@ -338,6 +340,7 @@ This method is called when the button is clicked so we just call it in the butto
    getUsers();
  }
 ``` 
+
  After you run the application and the button is clicked, this is the result.
 
 ![](/img/1_jLM8L5gWlMZyMBtfN4TOA.png)
