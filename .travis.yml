@@ -1,6 +1,6 @@
 language: ruby
 rvm: 2.4.1
-gemfile: Gemfile
+gemfile: blog/Gemfile
 before_script:
   - cd blog
 script:
