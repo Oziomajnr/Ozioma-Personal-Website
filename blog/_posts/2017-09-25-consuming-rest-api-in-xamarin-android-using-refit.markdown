@@ -4,17 +4,28 @@ title:	"Consuming REST API in Xamarin.Android using REFIT"
 date:	2017-09-25
 ---
 
-While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is **RETROFIT**, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is **REFIT**(the name tells its all).
+While developing an android application using java, I had to get data from an API endpoint and I discovered a 
+library that made the job very easy for me. That library is **RETROFIT**, it allows you define your api endpoints as 
+interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of 
+the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the
+ endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if 
+ retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a 
+ similar approach to solving the problem of making api calls and that library is **REFIT**(the name tells its all).
 
-In this tutorial we would learn how to make api calls using refit, we would be getting a list of developers in a location from github, I have decided to list developers in Lagos, Nigeria where I live, you can decide to add your own city! The result of our search would be displayed on a List View.
+In this tutorial we would learn how to make api calls using refit, we would be getting a list of developers in a
+ location from github, I have decided to list developers in Lagos, Nigeria where I live, you can decide to add your 
+ own city! The result of our search would be displayed on a List View.
 
-Refit would help us get the JSON response from the endpoint but to convert or deserialize the JSON response to a C# object, we would use **JSON.NET**.
+Refit would help us get the JSON response from the endpoint but to convert or deserialize the JSON response to a 
+C# object, we would use **JSON.NET**.
 
 We would follow the following steps to complete this tutorial
 
-1. Start a new **Xamarin.Android** project using visual studio(I am using visual studio 2017 but the procedure would work for any version of visual studio)
+1. Start a new **Xamarin.Android** project using visual studio(I am using visual studio 2017 but the procedure would 
+work for any version of visual studio)
 
-2. Add reference to the refit library by getting it from nuget. Refit comes with **Json.net** so we would not have to install it separately.
+2. Add reference to the refit library by getting it from nugget. Refit comes with **Json.net** so we would not have 
+to install it separately.
 
 3. Define the response model.
 
@@ -32,7 +43,7 @@ We would follow the following steps to complete this tutorial
 
 Lets get started.
 
-### 1.Start a new Xamarin.android Project
+### 1. Start a new Xamarin.android Project
 
 From visual studio start a new Xamarin.Android project, select a blank project template.
 
@@ -40,37 +51,44 @@ From visual studio start a new Xamarin.Android project, select a blank project t
 
 Start a new Xamarin.Android Project### 2. Add reference to the REFIT Packages from Nugget
 
-From the solution explorer, right click on reference then from the menu click on manage nugget packages, this would open up the nugget package manager window, then select the browse tab and search for **refit. **From the search result install the refit library by Paul Betts to the current project.
+From the solution explorer, right click on reference then from the menu click on manage nugget packages, 
+this would open up the nugget package manager window, then select the browse tab and search for **refit**.
+From the search result install the refit library by Paul Betts to the current project.
 
 ![](/img/1OIPX0ljPlwf6mJBPab4hug.png)
 
 ![](/img/1tcpd5IC1BClJwma2xKbUxA.png)
 
-Installing this package would install both Refit dependency and other dependencies we would need to deserialize the JSON. So we are all set with what we need to build the app. Then we need to define the model of our response and user.
+Installing this package would install both Refit dependency and other dependencies we would need to deserialize the JSON.
+ So we are all set with what we need to build the app. Then we need to define the model of our response and user.
 
-### 3. Define the Response model
+###3. Define the Response model
 
-We need a C# class to model our response we would be getting from the github api, but first of all let’s see what the response looks like in JSON. The URL that I need to list github developers in Lagos is
+We need a C# class to model our response we would be getting from the github api, but first of all let’s see what 
+the response looks like in JSON. The URL that I need to list github developers in Lagos is
 
 <https://api.github.com/search/users?q=location:lagos>
 
-so that would give us our result in JSON, then we can use it to know what our response model would look like. I would make the request using postman, but you can use your web browser
+so that would give us our result in JSON, then we can use it to know what our response model would look like.
+ I would make the request using postman, but you can use your web browser
 
 ![](/img/1JjpFxbuht7DRonestTXRfw.png)
 
 From the structure of the JSON response we can see that it contains the following
 
-· The total number of result (total\_count).
++ The total number of result (total_count).
 
-· A status to show if the result is complete or not(incomplete\_result).
++ A status to show if the result is complete or not(incomplete_result).
 
-· A JSON array (items) containing the result object ( this is what we are interested in) .
++ A JSON array (items) containing the result object ( this is what we are interested in) .
 
-The result is paginated that means we can only get 30 items per request, to get more items, we would have to pass the page number as part of the request, but this 30 result would be enough to demonstrate our example.
+The result is paginated that means we can only get 30 items per request, to get more items, we would have to pass 
+the page number as part of the request, but this 30 result would be enough to demonstrate our example.
 
 So let’s model our response object.
 
-From the solution Explorer, right click on the project and create a new folder called **Model**, this folder would contain our model for the response and the user.
+From the solution Explorer, right click on the project and create a new folder called **Model**, this folder would 
+contain our model for the response and the user.
 
 Right click on the newly created Model folder and add a new class called **ApiResponse**
 
@@ -184,8 +202,8 @@ lets design our user interface.
 
 ### 6. Design the User Interface
 
-Our user interface would be very simple, it would contain just a** Button** 
-and **a List View,** the button would be used to start the process of getting the
+Our user interface would be very simple, it would contain just a **Button** 
+and **a List View**, the button would be used to start the process of getting the
  list of users and the list view would display this list of users.
 
 To design the user interface open main.xml and add the following source code
@@ -238,28 +256,32 @@ JsonConvert.DefaultSettings =()=> new JsonSerializerSettings() {
 ```cs
 **using Newtonsoft.Json.Serialization;  
 using Newtonsoft.Json.Converters;  
-using Newtonsoft.Json;**Then we define our global variables in the MainActivity as follows:
+using Newtonsoft.Json;
+```
+Then we define our global variables in the MainActivity as follows:
 
+```cs
 namespace ConnecingToApiExample{namespace ConnecingToApiExample {  
  [Activity(Label = "ConnecingToApiExample", MainLauncher = true, Icon = "@drawable/icon")]  
- public class MainActivity : Activity  
- {  
- IGitHubApi gitHubApi;  
- List<User> users = new List<User>();  
- List<String> user\_names = new List<String>();  
- Button cake\_lyf\_button;  
- IListAdapter ListAdapter;  
- ListView listView;  
+ public class MainActivity : Activity  {  
+     IGitHubApi gitHubApi;  
+     List<User> users = new List<User>();  
+     List<String> user_names = new List<String>();  
+     Button cake_lyf_button;  
+     IListAdapter ListAdapter;  
+     ListView listView;  
    
  protected override void OnCreate(Bundle bundle)  
  {
+ 
  ```
  
- …Then lets tell Refit to give us an Implementation of the IGithubApi interface so that we can use it to make calls to the API, we do that by assigning that implementation to the variable **gitHubApi****.**
+ …Then lets tell Refit to give us an Implementation of the IGithubApi interface so that we can use it to make calls 
+ to the API, we do that by assigning that implementation to the variable **gitHubApi**.
 
 In the OnCreate() method, let’s get an implementation of our interface and assigned it to the gitHubApi variable like this:
 
-gitHubApi = RestService.For<IGitHubApi>(“https://api.github.com");
+```gitHubApi = RestService.For<IGitHubApi>(“https://api.github.com");```
 
 As you can see this is where you tell Refit about the base URL that we would append the parameters that we declared in **step 5**.
 
@@ -276,8 +298,11 @@ First we get the reference to the main.xml, then to the button and then the List
  ```
  
  ### 8. Make the API Call
+ 
 
-Let’s create a method that would make the API call and fill in the List of Users with the result, then convert the result to string and use the string to populate the list of user names. Then use that list of user names to populate the list view in the UI. The method that would do that is given below:
+Let’s create a method that would make the API call and fill in the List of Users with the result, then convert 
+the result to string and use the string to populate the list of user names. Then use that list of user names to populate
+ the list view in the UI. The method that would do that is given below:
 
 ```cs
 private async void getUsers(){  
@@ -302,17 +327,25 @@ private async void getUsers(){
 ```cs 
  ApiResponse response = await gitHubApi.GetUser();
 ```
-is responsible for making the API call, since the call to the API returns a **Task** of type **ApiResponse**, to get the object we have to **await** the **Task** and thus the method has to be an **async** method as you can see from the method signature.
+is responsible for making the API call, since the call to the API returns a **Task** of type **ApiResponse**,
+ to get the object we have to **await** the **Task** and thus the method has to be an **async** method as you 
+ can see from the method signature.
 
 This method is called when the button is clicked so we just call it in the button clicked event handler of the button as shown below:
 
-private void Cake\_lyf\_butto_Click(object sender, EventArgs e){  
- getUsers();  
- }After you run the application and the button is clicked, this is the result.
+```cs
+  private void Cake_lyf_butto_Click(object sender, EventArgs e){  
+   getUsers();
+ }
+``` 
+ After you run the application and the button is clicked, this is the result.
 
-![](/img/1_jLM8L5gWlMZyMBtfN4TOA.png)### Conclusion
+![](/img/1_jLM8L5gWlMZyMBtfN4TOA.png)
 
-Refit really makes making API calls easy and properly structured, you can explore more about the library by checking out their GitHub repo <https://github.com/paulcbetts/refit>
+### Conclusion
+
+Refit really makes making API calls easy and properly structured, you can explore more about the library by checking 
+out their GitHub repo <https://github.com/paulcbetts/refit>
 
 The complete source code form the different files are shown below in case you do understand the different snippets
 
@@ -455,4 +488,4 @@ namespace ConnecingToApiExample.Interface {
 
 I have also added the source code of this tutorial in my git repository here:
 
-[**Oziomajnr/Xamarin-Refit-Api-Connection**  ](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample)
+[**Oziomajnr/Xamarin-Refit-Api-Connection**](https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample)
