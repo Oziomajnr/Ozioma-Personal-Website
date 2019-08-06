@@ -9,6 +9,7 @@ script:
   - gem install jekyll bundler
   - bundle exec jekyll build --verbose
   - cd ..
+  - ls
 deploy:
   provider: firebase
   token:
