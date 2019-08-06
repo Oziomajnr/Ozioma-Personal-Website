@@ -1,10 +1,9 @@
 language: ruby
 rvm: 2.4.1
+gemfile: Gemfile
 before_script:
   - cd blog
 script:
-  - bundle uninstall
-  - bundle install
   - gem install jekyll bundler
   - bundle exec jekyll build --verbose
 deploy:
