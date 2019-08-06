@@ -104,7 +104,7 @@ class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
   
  ViewHolder(View itemView) {  
  super(itemView);  
- mCheckedTextView = (CheckedTextView) itemView.findViewById(R.id.checked\_text\_view);  
+ mCheckedTextView = (CheckedTextView) itemView.findViewById(R.id.checked_text_view);  
  itemView.setOnClickListener(this);  
  }  
   

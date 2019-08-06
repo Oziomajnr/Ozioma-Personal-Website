@@ -36,7 +36,7 @@ allprojects {
 }then in our app level build.gradle file we add the following dependencies
 
 compile **\'com.facebook.stetho:stetho:1.5.0\'  
-**compile **\'com.uphyca:stetho\_realm:2.1.0\'**2. **Ensure Stetho is only used from debug build only**
+**compile **\'com.uphyca:stetho_realm:2.1.0\'**2. **Ensure Stetho is only used from debug build only**
 
 It is advised that Stetho be used only for debug builds only as you do not want it to be mumbled in your release project since you might not want users to monitor your database, to achieve this we configure stetho in the Application class that would only be used for debug build using , so we create a separate source set from the app/src/main folder, call this new folder **debug **app/src/debug where we would house our application class that would be used instead of our usual application class where we initialized realm.
 
@@ -49,7 +49,7 @@ In our newly created debug directory we add the new Application class we would c
 // this package should be the same with the main application class  
 **package **com.example.myapp;**import **android.app.Application;  
 **import **com.facebook.stetho.Stetho;  
-**import **com.uphyca.stetho\_realm.RealmInspectorModulesProvider;**public class **DebugApplication **extends **Application {  
+**import **com.uphyca.stetho_realm.RealmInspectorModulesProvider;**public class **DebugApplication **extends **Application {  
   
  @Override  
  **public void **onCreate() { **super**.onCreate();  

@@ -14,7 +14,7 @@ First of all, lets understand the paystack payment flow, these are the steps.
 2. Initialize a transaction to generate a payment url.
 3. Verify the transaction.
 4. **Register to get an API key.**
-Go to <https://paystack.com/> register to create an account then get a test api key, it is usually of the format **sk\_test\_xxxxxxxxxxxxxxxxxxxxxxxxxx. **This key would be sent as an Authorization header when making request to the paystack api.
+Go to <https://paystack.com/> register to create an account then get a test api key, it is usually of the format **sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxx. **This key would be sent as an Authorization header when making request to the paystack api.
 
 2. **Initialize a transaction to generate a payment url.**
 

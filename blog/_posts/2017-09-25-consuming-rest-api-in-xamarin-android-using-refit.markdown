@@ -313,7 +313,7 @@ private async void getUsers(){
  foreach (User user in users) {  
   user_names.Add(user.ToString());  
  }  
-  ListAdapter = new ArrayAdapter<String>(this, Android.Resource.Layout.SimpleListItem1, user\_names);  
+  ListAdapter = new ArrayAdapter<String>(this, Android.Resource.Layout.SimpleListItem1, user_names);  
   listView.Adapter = ListAdapter;  
  }  
  catch (Exception ex) {  
@@ -416,17 +416,17 @@ namespace ConnecingToApiExample {
 <?xml version="1.0" encoding="utf-8"?>  
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"  
  android:orientation="vertical"  
- android:layout\_width="match\_parent"  
- android:layout\_height="match\_parent">  
+ android:layout_width="match_parent"  
+ android:layout_height="match_parent">  
  <Button  
- android:layout\_width="match\_parent"  
- android:layout\_height="wrap\_content"  
+ android:layout_width="match_parent"  
+ android:layout_height="wrap_content"  
  android:text="List Users"  
- android:id="@+id/bt_list\_users" />  
+ android:id="@+id/bt_list_users" />  
  <ListView  
- android:layout\_width="match\_parent"  
- android:layout\_height="match\_parent"  
- android:id="@+id/listview\_users"  
+ android:layout_width="match_parent"  
+ android:layout_height="match_parent"  
+ android:id="@+id/listview_users"  
  android:background="#000000" />  
 </LinearLayout>
 ```
@@ -439,10 +439,10 @@ using System.Collections.Generic;
   
  namespace ConnecingToApiExample.Model {  
   public class ApiResponse {  
-  [JsonProperty(PropertyName = "total\_count")]  
+  [JsonProperty(PropertyName = "total_count")]  
   public string totalCount { get; set; }  
   
-   [JsonProperty(PropertyName = "incomplete\_results")]  
+   [JsonProperty(PropertyName = "incomplete_results")]  
    public string incompleteResults { get; set; }  
   
    [JsonProperty(PropertyName = "items")]  
