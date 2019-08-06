@@ -125,7 +125,7 @@ We can do that by clicking on options → settings → sign in. To View our real
  then when the application is running we can go to the url:
  *chrome://inspect/#devices* access the current connected device.
 
-![](https://cdn-images-1.medium.com/max/800/1-Ny0cWSGybrEDEgbjceQpw.png)
+![](https://cdn-images-1.medium.com/max/800/1*-Ny0cWSGybrEDEgbjceQpw.png)
 
 Chrome Dev Tools(inspect devices)from the screen shot you can see the device currently connected and the running apps that have stetho installed.
 
