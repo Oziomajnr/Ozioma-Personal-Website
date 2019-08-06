@@ -2,9 +2,8 @@ language: ruby
 rvm: 2.4.1
 before_script:
   - cd blog
-  - chmod +x ./script/cibuild
 script:
-  - ./script/cibuild
+  - bundle exec jekyll build --verbose
 deploy:
   provider: firebase
   token:
