@@ -5,7 +5,7 @@ date:	2018-08-24
 ---
 
 <p align="center">
- <img src="img/1ZS8CDu-r4vwbO-0--O8Aug.png" alt="Event bus explanation">
+ <img src="/img/google_data_store_pic.png" alt="Event bus explanation">
 </p>
  
  Google Cloud Datastore is a managed, schema-less and highly scalable [NoSql](https://hackernoon.com/tagged/nosql)

@@ -4,8 +4,9 @@ title:	"Communicating between components in Java Using Guava Event Bus"
 date:	2018-08-13
 ---
 
-![](/img/1h9fw9-AbGIqjEskbK-Rf6A.png)
-<https://raw.githubusercontent.com/greenrobot/EventBus/master/EventBus-Publish-Subscribe.png> 
+<p align="center">
+ <img src="/img/1h9fw9-AbGIqjEskbK-Rf6A.png" alt="Singleton Diagram">
+</p>
 
 One common situation that arises when building enterprise application is [implementing](https://hackernoon.com/tagged/implementing)
 a chain of business processes after one process is [successful](https://hackernoon.com/tagged/successful), 
@@ -49,7 +50,9 @@ Note: The docs to the library has this to say about the Event Bus
 
 So, here is the components involved in our application
 
-![](/img/1c8D-DnP5FeYjFSv8sKUhZg.png)
+<p align="center">
+ <img src="/img/1c8D-DnP5FeYjFSv8sKUhZg.png" alt="Singleton Diagram">
+</p>
 
 The first component should handle processes that is involved directly with a
  successful payment, like reducing the number of items left in the store.
@@ -57,7 +60,9 @@ The first component should handle processes that is involved directly with a
 * The third component handles sending, receipt to the Seller.
 We could chain these processes together by implementing them in different methods and call them sequentially
 
-![](/img/1kyb5ng5AiA8PHc-5GWZbdw.png)
+<p align="center">
+ <img src="/img/1kyb5ng5AiA8PHc-5GWZbdw.png" alt="Singleton Diagram">
+</p>
 
 we could have it implemented like this
 
@@ -68,7 +73,9 @@ address this issue using an Event Bus, the **Google Guava Event Bus**.
 
 This is how our implementation would looks like
 
-![](/img/1A9DhulF8SlpgQ5c-odpuKw.png)
+<p align="center">
+ <img src="/img/1A9DhulF8SlpgQ5c-odpuKw.png" alt="Singleton Diagram">
+</p>
 
 The payment component and the receipt sender components are completely unaware of each other,
  the event bus is responsible for carrying the information from the publishers to all the subscribers.
@@ -150,5 +157,3 @@ We would now post the event whenever a payment is successful.
 This would trigger all methods that have the Payment event as their argument and also has the @Subscribe annotation.
 
 **Feels free to share you thoughts in the comments, I want to hear your experience implementing this pattern.**
-
-'

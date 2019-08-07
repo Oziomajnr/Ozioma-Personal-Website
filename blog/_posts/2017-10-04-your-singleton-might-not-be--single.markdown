@@ -5,7 +5,7 @@ date:	2017-10-04
 ---
 
 <p align="center">
- <img src="img/0CAvq1Jb3ynFuSwnG.png" alt="Singleton Diagram">
+ <img src="/img/0CAvq1Jb3ynFuSwnG.png" alt="Singleton Diagram">
 </p>
  
 
