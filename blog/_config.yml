@@ -13,8 +13,7 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Ozioma Ogbe, Software Engineer
-email: ogbeoziomajnr@yahoo.com
+title: Ozioma Ogbe
 description: >- # this means to ignore newlines until "baseurl:"
  Hi, I am a Software Engineer and I enjoy solving problems and sharing my solutions,
  I have worked with many technologies but I am more focused on native android application development for now.
@@ -28,6 +27,7 @@ linkedin_username: oziomajnr
 stackoverflow_username: ogbe
 stackoverflow_number: 3937903
 google_analytics: UA-145161693-1
+show_excerpts: true
 disqus:
     shortname: oziomas-website
 # Build settings
