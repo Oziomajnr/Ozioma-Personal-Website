@@ -21,7 +21,7 @@ I searched around some possible options like Wordpress, Drupal, etc...
  I had built my business card web page [http://oziomaogbe.com](http://oziomaogbe.com) as a simple static site and I hosted it on 
  [Firebase Hosting](https://firebase.google.com/docs/hosting) for free and I was able to get free SSL certificates too,
   building the blog would not be any different, so I decided to go with that option. 
-  I would build the blog using [Jekyll](https://jekyllrb.com/) host it on [Firebase](https://firebase.google.com/docs/hosting), 
+  I would build the blog using [Jekyll](https://jekyllrb.com/), host it on [Firebase](https://firebase.google.com/docs/hosting), 
   host the code for the website on Github (I could have used any Git service, like Bitbucket on Gitlab but
    I wanted to see my contributions grow on my public profile 😉). I had used [Tavis CI](http://travis-ci.org) for
     my  business card too so I decided to use it for deploying the blog to firebase anytime I push my changes to Github. 
