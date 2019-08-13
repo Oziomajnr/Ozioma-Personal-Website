@@ -70,19 +70,19 @@ Lets get to the fun stuff
 	hooked to the Github repository. Here is my travis `yaml` file
 	
 	```yaml
-    language: ruby
-    rvm: 2.4.1
-    before_script:
+   language: ruby
+   rvm: 2.4.1
+   before_script:
       - cd blog
    script:
     - gem update --system
     - gem install bundler
     - bundler update --bundler
-   - gem install jekyll bundler
-   - JEKYLL_ENV=production bundle exec jekyll build --verbose
-   - cd ..
+    - gem install jekyll bundler
+    - JEKYLL_ENV=production bundle exec jekyll build --verbose
+    - cd ..
     - ls
-    deploy:
+   deploy:
       skip_cleanup: true
       provider: firebase
 	  token:
