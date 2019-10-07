@@ -1,5 +1,8 @@
-# My top 5 favorite software engineering podcasts
-
+---
+layout:	post
+title:	"My top 5 favorite software engineering podcasts"
+date:	2019-10-07
+---
 
 
 Podcasts have become a big part of my daily routine for the past 3 months. 
