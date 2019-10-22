@@ -44,7 +44,7 @@ this Podcast picks some interesting stories from free code camp blog and read it
 than reading a blog. They also interview some engineers too and they talk about how they were able to overcome
 obstacles to become software engineers. 
 
-Podcasts have an advantage over blogs and videos because of its "passive consumption format",
+Podcasts have an advantage over Blogs and videos because of its "passive consumption format",
 you do not have to be visually engaged in it to consume
 the content. You can listen to Podcasts while engaging in a variety of activities and it is something I have come to enjoy recently.
 
