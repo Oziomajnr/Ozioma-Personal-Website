@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "nl.omroep.npo.radio1",
+    "sha256_cert_fingerprints":
+    ["86:93:5D:15:A4:5B:20:DB:7A:15:AF:3C:69:2E:D8:A7:79:50:A2:A6:4C:EC:38:64:E3:C1:CE:89:66:44:DA:B6"]
+  }
+}]
