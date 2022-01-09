@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: helaili/jekyll-action@v2
-        with:
+      - with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-blog:
@@ -21,5 +21,5 @@ jobs:
       - uses: helaili/jekyll-action@v2
       - run: |
           cd blog
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - with:
+         token: ${{ secrets.GITHUB_TOKEN }}
