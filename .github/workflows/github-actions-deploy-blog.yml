@@ -17,9 +17,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           cd blog
+          echo running gem update --system
           gem update --system
+          echo running gem install bundler
           gem install bundler
+          echo running bundler update --bundler
           bundler update --bundler
+          echo running gem install jekyll bundler
           gem install jekyll bundler
           JEKYLL_ENV=production bundle exec jekyll build --verbose
           cd ..
