@@ -11,6 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: helaili/jekyll-action@v2
+        run: |
+          cd blog
+          gem update --system
+          gem install bundler
+          bundler update --bundler
+          gem install jekyll bundler
+          JEKYLL_ENV=production bundle exec jekyll build --verbose
+          cd ..
+          ls
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: w9jds/firebase-action@master
