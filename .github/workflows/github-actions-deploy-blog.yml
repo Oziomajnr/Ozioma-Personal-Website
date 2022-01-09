@@ -13,10 +13,9 @@ jobs:
       - uses: helaili/jekyll-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deploy to Firebase
-          uses: w9jds/firebase-action@master
-          with:
-            args: deploy --only hosting
+      - uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
           env:
             FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
 
@@ -28,9 +27,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: /blog
-      - name: Deploy to Firebase
-          uses: w9jds/firebase-action@master
-          with:
-            args: deploy --only hosting
+      - uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
           env:
             FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
