@@ -19,6 +19,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: helaili/jekyll-action@v2
-        working-directory: blog
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
