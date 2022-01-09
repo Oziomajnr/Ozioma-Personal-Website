@@ -18,17 +18,3 @@ jobs:
           args: deploy --only hosting
         env:
            FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
-
-  deploy-blog:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: helaili/jekyll-action@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: /blog
-      - uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
