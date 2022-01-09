@@ -3,14 +3,17 @@ name: Build and deploy Jekyll site to GitHub Pages
 on:
   push:
     branches:
-      - master # or master before October 2020
+      - master
 
 jobs:
   deploy-site:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: helaili/jekyll-action@v2
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+          token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd blog
           gem update --system
@@ -20,8 +23,6 @@ jobs:
           JEKYLL_ENV=production bundle exec jekyll build --verbose
           cd ..
           ls
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: w9jds/firebase-action@master
         with:
           args: deploy --only hosting
