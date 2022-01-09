@@ -1,6 +1,6 @@
 ---
 layout:	post
-title:	"Optimal Stopping: Testing the 37% rule as a solution to the secretary problem."
+title:	"The Optimal Stopping Problem: Testing the 37% rule."
 date:	2022-01-09
 ---
 
