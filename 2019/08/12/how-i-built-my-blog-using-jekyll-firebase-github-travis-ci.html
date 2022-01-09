@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How I built my blog using Jekyll, Firebase, Github and Travis CI | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="How I built my blog using Jekyll, Firebase, Github and Travis CI" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements," />
+<meta property="og:description" content="I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements," />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-08-12T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"How I built my blog using Jekyll, Firebase, Github and Travis CI","dateModified":"2019-08-12T00:00:00+00:00","description":"I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements,","datePublished":"2019-08-12T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://blog.oziomaogbe.com/feed.xml" title="Ozioma Ogbe" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-145161693-1"></script>
+<script>
+  window['ga-disable-UA-145161693-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145161693-1');
+</script>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How I built my blog using Jekyll, Firebase, Github and Travis CI | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="How I built my blog using Jekyll, Firebase, Github and Travis CI" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements," />
+<meta property="og:description" content="I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements," />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-08-12T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"How I built my blog using Jekyll, Firebase, Github and Travis CI","dateModified":"2019-08-12T00:00:00+00:00","description":"I recently decided to write my technical content on my personal blog instead of on Medium, but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements,","datePublished":"2019-08-12T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ozioma Ogbe</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects.html">Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">How I built my blog using Jekyll, Firebase, Github and Travis CI</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-08-12T00:00:00+00:00" itemprop="datePublished">Aug 12, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I recently decided to write my technical content on my personal blog instead of on Medium,
+ but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements,</p>
+
+<ol>
+  <li>I can easily manage the content and churn out new articles without having to write some HTML.</li>
+  <li>Free hosting (you cannot pay for everything 😁).</li>
+  <li>Custom domain name.</li>
+  <li>Should have TLS and certificate should be free.</li>
+  <li>Deploying new content should be easy.</li>
+</ol>
+
+<p>I searched around some possible options like Wordpress, Drupal, etc… 
+ they did not really meet my expectations so I decided to check out the personal blog of some developers, 
+ I found  <a href="https://jakewharton.com/blog/">Jake Whartson’s Blog</a> and <a href="https://chris.banes.dev">Chris Bane’s blog</a> 
+ interesting because of the simple style and then I saw an article on how Chris had built his using a tool called 
+ <a href="https://jekyllrb.com">Jekyll</a> which is a tool that builds your blog as static web pages, this sounded cool because 
+ I had built my business card web page <a href="http://oziomaogbe.com">http://oziomaogbe.com</a> as a simple static site and I hosted it on 
+ <a href="https://firebase.google.com/docs/hosting">Firebase Hosting</a> for free and I was able to get free SSL certificates too,
+  building the blog would not be any different, so I decided to go with that option. 
+  I would build the blog using <a href="https://jekyllrb.com/">Jekyll</a>, host it on <a href="https://firebase.google.com/docs/hosting">Firebase</a>, 
+  host the code for the website on Github (I could have used any Git service, like Bitbucket on Gitlab but
+   I wanted to see my contributions grow on my public profile 😉). I had used <a href="http://travis-ci.org">Tavis CI</a> for
+    my  business card too so I decided to use it for deploying the blog to firebase anytime I push my changes to Github. 
+<br /> <br />
+Lets get to the fun stuff
+<br /><br /></p>
+<p align="center">
+ <img src="https://media1.giphy.com/media/mGuuaZ84ou7KM/giphy.gif" alt="Let's get to the fun" />
+</p>
+
+<p><br /> <br /> <br /></p>
+<h2 align="center"> Building the blog</h2>
+
+<ol>
+  <li>
+    <h3 id="setting-up-jekyll">Setting up Jekyll:</h3>
+    <p>The downside to Jekyll is that you have it know some coding to modify the layout of your blog,
+    but there are many <a href="https://jekyllthemes.io/free">free Jekyll themes</a> available and this site is using one of them, 
+    also you have to write your blog posts as <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a>
+     but with markdown editing tools like <a href="https://stackedit.io/app#">Stack Edit</a> 
+      this is not any different than writing in Medium.com. 
+   To setup Jekyll you have to install it using <a href="https://www.ruby-lang.org/en/downloads/">Ruby</a> 
+    you can do so by running the following commands</p>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="nv">$ </span> gem <span class="nb">install </span>bundler jekyll
+   <span class="nv">$ </span> jekyll new my-awesome-site
+   <span class="nv">$ </span> <span class="nb">cd </span>my-awesome-site
+   <span class="nv">$ </span> bundle <span class="nb">exec </span>jekyll serve
+</code></pre></div>    </div>
+    <p>this would install Jekyll and build a sample jekyll site  and serve it at  http://localhost:4000
+  you can create and edit your blog posts as markdown in the folder <strong>_posts</strong> in your website’s home directory. 
+  Here is a sample of what your website folder would look like<br />
+  <a href="https://github.com/Oziomajnr/Ozioma-Personal-Website/tree/master/blog">Ozioma’s Blog</a>, 
+  you can edit metadata to your site using the config file in the home folder of the website.</p>
+  </li>
+  <li>
+    <h3 id="github">Github:</h3>
+    <p>The code for the jekyll website is hosted in a
+  <a href="https://github.com/Oziomajnr/Ozioma-Personal-Website/tree/master/blog">Github Repository</a>.</p>
+  </li>
+  <li>
+    <p>Firebase: 
+ I used <a href="https://firebase.google.com/docs/hosting">firebase hosting</a> for hosting the blog since it is 
+ just static content and firebase hosting is free and also gives you free SSL certificate, also deploying to 
+ firebase hosting is quite easy, for information on how to set up firebase hosting you can check out the 
+ <a href="https://firebase.google.com/docs/hosting/quickstart">Docs</a>.</p>
+  </li>
+  <li>
+    <p>Travis-CI: 
+ I wanted easy and quick deployment of new content for the blog so I used  <a href="http://travis-ci.org/">Travis CI</a> 
+ hooked to the Github repository. Here is my travis <code class="highlighter-rouge">yaml</code> file</p>
+
+    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">language</span><span class="pi">:</span> <span class="s">ruby</span>
+<span class="na">rvm</span><span class="pi">:</span> <span class="s">2.4.1</span>
+<span class="na">before_script</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="s">cd blog</span>
+<span class="na">script</span><span class="pi">:</span>
+ <span class="pi">-</span> <span class="s">gem update --system</span>
+ <span class="pi">-</span> <span class="s">gem install bundler</span>
+ <span class="pi">-</span> <span class="s">bundler update --bundler</span>
+ <span class="pi">-</span> <span class="s">gem install jekyll bundler</span>
+ <span class="pi">-</span> <span class="s">JEKYLL_ENV=production bundle exec jekyll build --verbose</span>
+ <span class="pi">-</span> <span class="s">cd ..</span>
+ <span class="pi">-</span> <span class="s">ls</span>
+<span class="na">deploy</span><span class="pi">:</span>
+   <span class="na">skip_cleanup</span><span class="pi">:</span> <span class="no">true</span>
+   <span class="na">provider</span><span class="pi">:</span> <span class="s">firebase</span>
+   <span class="na">token</span><span class="pi">:</span>
+     <span class="na">secure</span><span class="pi">:</span> <span class="s2">"</span><span class="s">FIREBASE_CI_TOKEN"</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>This deployment setup handles both deploying to my business card website <a href="http://oziomaogbe.com">http://oziomaogbe.com</a> 
+and the blog 
+<a href="http://blog.oziomaogbe.com">http://blog.oziomaogbe.com</a> but since they are both hosted on the same Firebase 
+project their deployment process is the same, we only had to make sure the Jekyll blog is built correctly and 
+that is why we had the scripts</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>blog
+gem update <span class="nt">--system</span>
+gem <span class="nb">install </span>bundler
+bundler update <span class="nt">--bundler</span>
+gem <span class="nb">install </span>jekyll bundler
+<span class="nv">JEKYLL_ENV</span><span class="o">=</span>production bundle <span class="nb">exec </span>jekyll build <span class="nt">--verbose</span>
+</code></pre></div></div>
+<p>Travis handles the firebase deployment so I did not  have to explicitly  run the firebase deployment commands, 
+I only had to supply the firebase json file 
+<a href="https://github.com/Oziomajnr/Ozioma-Personal-Website/blob/master/firebase.json">https://github.com/Oziomajnr/Ozioma-Personal-Website/blob/master/firebase.json</a> 
+and generate a a CI token using</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>firebase login:ci
+</code></pre></div></div>
+<p>and then encrypt the generated token using</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>travis encrypt <span class="s2">"GENERATED_FIREBASE_TOKEN"</span> <span class="nt">--add</span>
+</code></pre></div></div>
+<p>this encrypts the firebase CI key and gives you a public key that you can use in your travis yaml file since that 
+file is kind of public.</p>
+
+<p>So that is it, next I would write about how I migrated my content from medium to my Jekyll blog.</p>
+<p align="center">
+ <img src="https://media3.giphy.com/media/RJzYCmfSZt1CmiUyuU/giphy-downsized.gif" alt="It's over" />
+</p>
+
+<p>Let me know in the comments below if you tried it out and also if you had any issues in the comments below.</p>
+
+  </div><div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html';
+      this.page.identifier = 'https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html';
+    };
+
+    (function() {
+      var d = document, s = d.createElement('script');
+
+      s.src = 'https://oziomas-blog.disqus.com/embed.js';
+
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript><a class="u-url" href="/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html" hidden></a>
+</article>
+
+    </div>
+</main><footer class="site-footer h-card">
+    <data class="u-url" href="/"></data>
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+            <div class="footer-col one-half">
+                <h2 class="footer-heading">Ozioma Ogbe</h2>
+                <ul class="contact-list">
+                    <li class="p-name">{&quot;twitter&quot;=&gt;&quot;oziomajnr&quot;}</li></ul>
+            </div>
+
+            <div class="social-links"><ul class="social-media-list"></ul>
+</div>
+        </div>
+        <form action="https://getsimpleform.com/messages?form_api_token=1971f93bf364c88720ddd88d8495d7fe" method="post"
+              class='form-inline'>
+            <input type='email' name='name' placeholder='Subscribe' class='form-control'/>
+            <button type='submit' class='btn btn-primary'>Subscribe</button>
+            <input type='hidden' name='redirect_to' value='http://blog.oziomaogbe.com/static/subscribe_thank_you.html'/>
+        </form>
+    </div>
+
+</footer>
+</body>
+
+
+
+</html>

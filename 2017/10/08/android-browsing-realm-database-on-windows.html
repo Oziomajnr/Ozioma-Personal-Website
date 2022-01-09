@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>ANDROID: Browsing Realm Database On Windows. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="ANDROID: Browsing Realm Database On Windows." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy." />
+<meta property="og:description" content="I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-10-08T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"ANDROID: Browsing Realm Database On Windows.","dateModified":"2017-10-08T00:00:00+00:00","description":"I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy.","datePublished":"2017-10-08T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://blog.oziomaogbe.com/feed.xml" title="Ozioma Ogbe" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-145161693-1"></script>
+<script>
+  window['ga-disable-UA-145161693-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145161693-1');
+</script>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>ANDROID: Browsing Realm Database On Windows. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="ANDROID: Browsing Realm Database On Windows." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy." />
+<meta property="og:description" content="I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-10-08T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"ANDROID: Browsing Realm Database On Windows.","dateModified":"2017-10-08T00:00:00+00:00","description":"I recently started using Realm as my mobile database and it has proved to be a very good solution as it is easy to implement and also it is live, so updating the User Interface to reflect changes in the underlying database is very easy.","datePublished":"2017-10-08T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ozioma Ogbe</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects.html">Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">ANDROID: Browsing Realm Database On Windows.</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2017-10-08T00:00:00+00:00" itemprop="datePublished">Oct 8, 2017
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I recently started using <a href="http://realm.io/">Realm</a> as my mobile database and it has proved to be 
+a very good solution as it is easy to implement and also it is live, 
+so updating the User Interface to reflect changes in the underlying database is very easy.</p>
+
+<p>But as with every other database, you often need to view its content without using the view
+from your application directly, <a href="http://realm.io/">Realm</a> provides a solution for that through 
+the<a href="https://academy.realm.io/posts/realm-browser-tutorial/"> Realm Browser</a>.
+With the realm browser you can view and even edit the data from your realm database. 
+The only problem is that realm browser is only available for MAC and UBUNTU operating systems
+but unfortunately its not available for WINDOWS.</p>
+
+<p>So how would windows users monitor the content of their Realm database? That would be covered in this brief tutorial.</p>
+
+<p>To achieve this we would use a tool called <a href="https://facebook.github.io/stetho/">Stetho,</a> developed by Facebook, 
+Stetho give developers access to the Dev tools feature of the Chrome browser, so we would view the content 
+of our realm database using Chrome browser. But another problem is that Realm db is not supported in Stetho 
+by default, so we would make use of another library, <a href="https://github.com/uPhyca/stetho-realm">stetho realm</a> 
+this would provide us the ability to view our realm db from the chrome dev tools using stetho.</p>
+
+<p>We would complete the tutorials in the following steps</p>
+
+<ol>
+  <li>Install dependencies.</li>
+  <li>Ensure Stetho is only used from debug build only(We dont want to mess up our release apk).</li>
+  <li>Use Chrome browser Dev tools to view our realm database.
+Pretty straight forward.</li>
+</ol>
+
+<p><strong>Note:</strong> This article assumes you have an app that utilizes realm db already,
+ if you don’t then you can use one of
+  the <a href="https://github.com/realm/realm-java/tree/master/examples">sample application</a>’s from the realm db repository.</p>
+
+<p><strong>1. Install Dependencies.</strong>
+The dependencies required are shown below</p>
+
+<p>in our Project level build.gradle file we add the the following maven url</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">allprojects</span> <span class="o">{</span>  
+ <span class="n">repositories</span> <span class="o">{</span>  
+  <span class="n">jcenter</span><span class="o">()</span>  
+  <span class="n">maven</span> <span class="o">{</span>  
+  <span class="nl">url:</span> <span class="s1">'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo'</span> <span class="o">}</span>  
+  <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>then in our app level build.gradle file we add the following dependencies</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">compile</span> <span class="s1">'com.facebook.stetho:stetho:1.5.0'</span>  
+    <span class="n">compile</span> <span class="s1">'com.uphyca:stetho_realm:2.1.0'</span>
+</code></pre></div></div>
+
+<p><strong>2. Ensure Stetho is only used from debug build only</strong></p>
+
+<p>It is advised that Stetho be used only for debug builds only as you do not want it to be mumbled in your 
+release project since you might not want users to monitor your database, to achieve this we configure stetho 
+in the Application class that would only be used for debug build using , so we create a separate source set 
+from the app/src/main folder, call this new folder **debug **app/src/debug where we would house our application 
+class that would be used instead of our usual application class where we initialized realm.</p>
+
+<p>our project structure would look like this:</p>
+
+<p><img src="/img/10y807QS-e7eUulKYj_jUUA.png" alt="" /></p>
+
+<p>notice the debug folder, this folder would contain another Application 
+class and and Android manifest file (all the android manifest files would be merged into one by gradle 
+during build ).</p>
+
+<p>In our newly created debug directory we add the new Application class we would call it DebugApplication.java</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// this package should be the same with the main application class  </span>
+<span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">myapp</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.app.Application</span><span class="o">;</span>  
+<span class="kn">import</span> <span class="nn">com.facebook.stetho.Stetho</span><span class="o">;</span>  
+<span class="kn">import</span> <span class="nn">com.uphyca.stetho_realm.RealmInspectorModulesProvider</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DebugApplication</span> <span class="kd">extends</span> <span class="nc">Application</span> <span class="o">{</span>  
+  
+ <span class="nd">@Override</span>  
+ <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span> <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>  
+ <span class="nc">Realm</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+ 
+ <span class="nc">Stetho</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span>  
+ <span class="nc">Stetho</span><span class="o">.</span><span class="na">newInitializerBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">enableDumpapp</span><span class="o">(</span><span class="nc">Stetho</span><span class="o">.</span><span class="na">defaultDumperPluginsProvider</span><span class="o">(</span><span class="k">this</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">enableWebKitInspector</span><span class="o">(</span><span class="nc">RealmInspectorModulesProvider</span>
+  <span class="o">.</span><span class="na">builder</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">build</span><span class="o">()).</span><span class="na">build</span><span class="o">());</span>  
+ <span class="o">}...</span>
+</code></pre></div></div>
+<p>this Application class must belong to the same package as the main Application class, 
+so that it can replace the main Application class correctly in debug mode. 
+All this class does is to initialize Realm and Stetho.</p>
+
+<p>Then we add Android manifest xml file to the build folder</p>
+
+<p>this should be the content of the file:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>  
+<span class="nt">&lt;manifest</span>  
+ <span class="na">package=</span><span class="s">"com.example.myapp"</span>  
+ <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>  
+ <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span><span class="nt">&gt;</span>  
+  
+ <span class="nt">&lt;application</span>  
+ <span class="na">tools:replace=</span><span class="s">"android:name"</span>  
+ <span class="na">android:name=</span><span class="s">".DebugApplication"</span><span class="nt">/&gt;</span>  
+<span class="nt">&lt;/manifest&gt;</span>
+</code></pre></div></div>
+
+<p>With just these few settings, we are good to go! we can use the Chrome Dev tools to monitor our application 
+and view our Realm database.</p>
+
+<ol>
+  <li><strong>Use Chrome browser Dev tools to view our realm database.</strong></li>
+</ol>
+
+<p>Before we use the chrome dev tools we have to sign into google chrome with a google account. 
+We can do that by clicking on options → settings → sign in. To View our realm database,
+ first we build and launch the application from android studio using Usb debugging, 
+ then when the application is running we can go to the url:
+ <em>chrome://inspect/#devices</em> access the current connected device.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/800/1*-Ny0cWSGybrEDEgbjceQpw.png" alt="" /></p>
+
+<p>Chrome Dev Tools(inspect devices)from the screen shot you can see the device currently connected and the running apps that have stetho installed.</p>
+
+<p>To view our realm db data, click on <strong>inspect</strong> from the app section. This would open a new chrome instance shown below:</p>
+
+<p><img src="/img/11veYQlW5ZVomGMiGp29VqQ.png" alt="" /></p>
+
+<p>Navigate to the resources tab, then from the side bar, open the <strong>Web Sql</strong> node, 
+then click on the name of your realm database and you can easily browse your realm object from there!</p>
+
+<p><img src="/img/1E-270s1JDrm7VlvpQNanDQ.png" alt="" /></p>
+
+<p>If you found this article helpful please support it with as many claps as you can, I would also welcome comments.</p>
+
+  </div><div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html';
+      this.page.identifier = 'https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html';
+    };
+
+    (function() {
+      var d = document, s = d.createElement('script');
+
+      s.src = 'https://oziomas-blog.disqus.com/embed.js';
+
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript><a class="u-url" href="/2017/10/08/android-browsing-realm-database-on-windows.html" hidden></a>
+</article>
+
+    </div>
+</main><footer class="site-footer h-card">
+    <data class="u-url" href="/"></data>
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+            <div class="footer-col one-half">
+                <h2 class="footer-heading">Ozioma Ogbe</h2>
+                <ul class="contact-list">
+                    <li class="p-name">{&quot;twitter&quot;=&gt;&quot;oziomajnr&quot;}</li></ul>
+            </div>
+
+            <div class="social-links"><ul class="social-media-list"></ul>
+</div>
+        </div>
+        <form action="https://getsimpleform.com/messages?form_api_token=1971f93bf364c88720ddd88d8495d7fe" method="post"
+              class='form-inline'>
+            <input type='email' name='name' placeholder='Subscribe' class='form-control'/>
+            <button type='submit' class='btn btn-primary'>Subscribe</button>
+            <input type='hidden' name='redirect_to' value='http://blog.oziomaogbe.com/static/subscribe_thank_you.html'/>
+        </form>
+    </div>
+
+</footer>
+</body>
+
+
+
+</html>

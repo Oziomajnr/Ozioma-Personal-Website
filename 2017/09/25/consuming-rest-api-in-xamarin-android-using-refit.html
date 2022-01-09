@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Consuming REST API in Xamarin.Android using REFIT | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Consuming REST API in Xamarin.Android using REFIT" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all)." />
+<meta property="og:description" content="While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all)." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-09-25T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Consuming REST API in Xamarin.Android using REFIT","dateModified":"2017-09-25T00:00:00+00:00","description":"While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all).","datePublished":"2017-09-25T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://blog.oziomaogbe.com/feed.xml" title="Ozioma Ogbe" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-145161693-1"></script>
+<script>
+  window['ga-disable-UA-145161693-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145161693-1');
+</script>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Consuming REST API in Xamarin.Android using REFIT | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Consuming REST API in Xamarin.Android using REFIT" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all)." />
+<meta property="og:description" content="While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all)." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-09-25T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Consuming REST API in Xamarin.Android using REFIT","dateModified":"2017-09-25T00:00:00+00:00","description":"While developing an android application using java, I had to get data from an API endpoint and I discovered a library that made the job very easy for me. That library is RETROFIT, it allows you define your api endpoints as interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a similar approach to solving the problem of making api calls and that library is REFIT(the name tells its all).","datePublished":"2017-09-25T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ozioma Ogbe</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects.html">Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Consuming REST API in Xamarin.Android using REFIT</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2017-09-25T00:00:00+00:00" itemprop="datePublished">Sep 25, 2017
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>While developing an android application using java, I had to get data from an API endpoint and I discovered a 
+library that made the job very easy for me. That library is <strong>RETROFIT</strong>, it allows you define your api endpoints as 
+interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of 
+the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the
+ endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if 
+ retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a 
+ similar approach to solving the problem of making api calls and that library is <strong>REFIT</strong>(the name tells its all).</p>
+
+<p>In this tutorial we would learn how to make api calls using refit, we would be getting a list of developers in a
+ location from github, I have decided to list developers in Lagos, Nigeria where I live, you can decide to add your 
+ own city! The result of our search would be displayed on a List View.</p>
+
+<p>Refit would help us get the JSON response from the endpoint but to convert or deserialize the JSON response to a 
+C# object, we would use <strong>JSON.NET</strong>.</p>
+
+<p>We would follow the following steps to complete this tutorial</p>
+
+<ol>
+  <li>
+    <p>Start a new <strong>Xamarin.Android</strong> project using visual studio(I am using visual studio 2017 but the procedure would 
+work for any version of visual studio)</p>
+  </li>
+  <li>
+    <p>Add reference to the refit library by getting it from nugget. Refit comes with <strong>Json.net</strong> so we would not have 
+to install it separately.</p>
+  </li>
+  <li>
+    <p>Define the response model.</p>
+  </li>
+  <li>
+    <p>Define the user model(The user model represents a developer).</p>
+  </li>
+  <li>
+    <p>Define the api interface using refit.</p>
+  </li>
+  <li>
+    <p>Design the user interface.</p>
+  </li>
+  <li>
+    <p>Define refit Serialization settings(these settings are global and have to be set once throughout the application).</p>
+  </li>
+  <li>
+    <p>Make calls to the github api to get the list of developers.</p>
+  </li>
+  <li>
+    <p>Display the list of developers in a list view.</p>
+  </li>
+</ol>
+
+<p>Lets get started.</p>
+
+<h3 id="1-start-a-new-xamarinandroid-project">1. Start a new Xamarin.android Project</h3>
+
+<p>From visual studio start a new Xamarin.Android project, select a blank project template.</p>
+
+<p><img src="https://cdn-images-1.medium.com/max/800/1*d_j8dEoKeEbMPuyk_eXoVQ.png" alt="" /></p>
+
+<p>Start a new Xamarin.Android Project</p>
+
+<h3 id="2-add-reference-to-the-refit-packages-from-nugget">2. Add reference to the REFIT Packages from Nugget</h3>
+
+<p>From the solution explorer, right click on reference then from the menu click on manage nugget packages, 
+this would open up the nugget package manager window, then select the browse tab and search for <strong>refit</strong>.
+From the search result install the refit library by Paul Betts to the current project.</p>
+
+<p><img src="/img/1OIPX0ljPlwf6mJBPab4hug.png" alt="" /></p>
+
+<p><img src="/img/1tcpd5IC1BClJwma2xKbUxA.png" alt="" /></p>
+
+<p>Installing this package would install both Refit dependency and other dependencies we would need to deserialize the JSON.
+ So we are all set with what we need to build the app. Then we need to define the model of our response and user.</p>
+
+<h3 id="3-define-the-response-model">3. Define the Response model</h3>
+
+<p>We need a C# class to model our response we would be getting from the github api, but first of all let’s see what 
+the response looks like in JSON. The URL that I need to list github developers in Lagos is</p>
+
+<p><a href="https://api.github.com/search/users?q=location:lagos">https://api.github.com/search/users?q=location:lagos</a></p>
+
+<p>so that would give us our result in JSON, then we can use it to know what our response model would look like.
+ I would make the request using postman, but you can use your web browser</p>
+
+<p><img src="/img/1JjpFxbuht7DRonestTXRfw.png" alt="" /></p>
+
+<p>From the structure of the JSON response we can see that it contains the following</p>
+
+<ul>
+  <li>
+    <p>The total number of result (total_count).</p>
+  </li>
+  <li>
+    <p>A status to show if the result is complete or not(incomplete_result).</p>
+  </li>
+  <li>
+    <p>A JSON array (items) containing the result object ( this is what we are interested in) .</p>
+  </li>
+</ul>
+
+<p>The result is paginated that means we can only get 30 items per request, to get more items, we would have to pass 
+the page number as part of the request, but this 30 result would be enough to demonstrate our example.</p>
+
+<p>So let’s model our response object.</p>
+
+<p>From the solution Explorer, right click on the project and create a new folder called <strong>Model</strong>, this folder would 
+contain our model for the response and the user.</p>
+
+<p>Right click on the newly created Model folder and add a new class called <strong>ApiResponse</strong></p>
+
+<p>The code for the ApiResponse.cs class is shown below:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>  
+  
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Model</span> <span class="p">{</span>  
+  <span class="k">public</span> <span class="k">class</span> <span class="nc">ApiResponse</span> <span class="p">{</span>  
+  <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"total_count"</span><span class="p">)]</span>  
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">totalCount</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+  <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"incomplete_results"</span><span class="p">)]</span>  
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">incompleteResults</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+  <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"items"</span><span class="p">)]</span>  
+  <span class="k">public</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;</span> <span class="n">items</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+  <span class="k">public</span> <span class="k">override</span> <span class="kt">string</span> <span class="nf">ToString</span><span class="p">()</span> <span class="p">{</span>  
+  <span class="k">return</span> <span class="n">totalCount</span><span class="p">;</span>  
+   <span class="p">}</span>   
+  <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The attribute <code class="highlighter-rouge">JsonProperty(PropertyName = "foo_bar")</code>
+is used to define the JSON name of the property that would be used to set the C# properties,
+this is used by Json.Net to deserialize the Json into a C# object. 
+We can see that the JSON property items which is a JSON array from the response we got from 
+the postman request would be automatically converted to a list of User 
+(we have not defined user yet) again this is done by <strong>Json.net</strong> .</p>
+
+<p>So our ApiResponse.cs class is ready but it contains a list of User but what is a user, 
+lets define a User.</p>
+
+<h3 id="4-define-the-user-model">4. Define the User model</h3>
+
+<p>To define the User model, right click on the Model folder and add a new Class called <strong>User.cs.</strong> 
+To define the content of the user class we have to know which property of the user we need, 
+so we go to the Json response and check the item node, since each item represents a User. 
+We only need the login property since that is the username of the user and that is what we 
+would display on the list view. So we define our user class as follows:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>  
+  
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Model</span> <span class="p">{</span>  
+ <span class="k">public</span> <span class="k">class</span> <span class="nc">User</span> <span class="p">{</span>  
+ <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"login"</span><span class="p">)]</span>  
+ <span class="k">public</span> <span class="kt">string</span> <span class="n">userName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+ <span class="k">public</span> <span class="k">override</span> <span class="kt">string</span> <span class="nf">ToString</span><span class="p">(){</span>  
+   <span class="k">return</span> <span class="n">userName</span><span class="p">;</span>  
+   <span class="p">}</span>  
+ <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The user class contains the login property and that would be used to populate the “username”
+ C# property. We have also Overridden the ToString() method to return the user name so 
+ that it would be easily displayed on the form.</p>
+
+<p>So we are done with the modelling of the Response and the user, what we do next is 
+that we define the API Interface.</p>
+
+<h3 id="5-define-the-api-interface">5. Define the API Interface</h3>
+
+<p>To use Refit, we define an interface that would hold signature of our endpoint methods
+ and we rely on Refit to provide implementation of the interface using the parameters we provide.</p>
+
+<p>To define the API interface, create a new folder called **Interface, **right click on 
+the folder and add a new item, select interface and name it **IGitHubApi.cs. **The content 
+of the API interface is shown below</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">System.Threading.Tasks</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Refit</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">ConnecingToApiExample.Model</span><span class="p">;</span>  
+  
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Interface</span> <span class="p">{</span>  
+  <span class="p">[</span><span class="nf">Headers</span><span class="p">(</span><span class="s">"User-Agent: :request:"</span><span class="p">)]</span>  
+  <span class="k">interface</span> <span class="nc">IGitHubApi</span> <span class="p">{</span>  
+  <span class="p">[</span><span class="nf">Get</span><span class="p">(</span><span class="s">"/search/users?q=location:lagos"</span><span class="p">)]</span>  
+  <span class="n">Task</span><span class="p">&lt;</span><span class="n">ApiResponse</span><span class="p">&gt;</span> <span class="nf">GetUser</span><span class="p">();</span>  
+  <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>First of all, we declared a Header User-Agent: :request</p>
+
+<p>This tells the GitHub API that we are making a request.</p>
+
+<p>Then we define the signature of the method we would use to get result from our API</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nf">Get</span><span class="p">(</span><span class="s">"/search/users?q=location:lagos"</span><span class="p">)]</span>  
+ <span class="n">Task</span><span class="p">&lt;</span><span class="n">ApiResponse</span><span class="p">&gt;</span> <span class="nf">GetUser</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>The Get attribute shows that we are making a get request to the endpoint (/search/users”) 
+ with the query parameter (“q=location:lagos”)</p>
+
+<p>But how does Refit know the base URL to append these endpoints and parameters to? 
+We would come to that (Step 7).</p>
+
+<p>The next piece of work would be done in our MainActivity class but before then 
+lets design our user interface.</p>
+
+<h3 id="6-design-the-user-interface">6. Design the User Interface</h3>
+
+<p>Our user interface would be very simple, it would contain just a <strong>Button</strong> 
+and <strong>a List View</strong>, the button would be used to start the process of getting the
+ list of users and the list view would display this list of users.</p>
+
+<p>To design the user interface open main.xml and add the following source code</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">&lt;?</span><span class="n">xml</span> <span class="n">version</span><span class="p">=</span><span class="s">"1.0"</span> <span class="n">encoding</span><span class="p">=</span><span class="s">"utf-8"</span><span class="p">?&gt;</span>  
+<span class="p">&lt;</span><span class="n">LinearLayout</span> <span class="n">xmlns</span><span class="p">:</span><span class="n">android</span><span class="p">=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">orientation</span><span class="p">=</span><span class="s">"vertical"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_width</span><span class="p">=</span><span class="s">"match_parent"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_height</span><span class="p">=</span><span class="s">"match_parent"</span><span class="p">&gt;</span>  
+ <span class="p">&lt;</span><span class="n">Button</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_width</span><span class="p">=</span><span class="s">"match_parent"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_height</span><span class="p">=</span><span class="s">"wrap_content"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">text</span><span class="p">=</span><span class="s">"List Users"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">id</span><span class="p">=</span><span class="s">"@+id/bt_list_users"</span> <span class="p">/&gt;</span>  
+ <span class="p">&lt;</span><span class="n">ListView</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_width</span><span class="p">=</span><span class="s">"match_parent"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">layout_height</span><span class="p">=</span><span class="s">"match_parent"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">id</span><span class="p">=</span><span class="s">"@+id/listview_users"</span>  
+ <span class="n">android</span><span class="p">:</span><span class="n">background</span><span class="p">=</span><span class="s">"#000000"</span> <span class="p">/&gt;</span>  
+<span class="p">&lt;/</span><span class="n">LinearLayout</span><span class="p">&gt;</span>
+</code></pre></div></div>
+<p>This is how the UI should look in the main layout</p>
+
+<p><img src="/img/1lrDZ9l7KaK8BmllTubZ8ew.png" alt="" /></p>
+
+<p>So now that the User Interface is set up lets go to 
+the main part of the program that would start off the API call process.</p>
+
+<p>First of all, let’s declare the global Refit settings.</p>
+
+<h3 id="7-define-refit-and-jsonnet-settings">7. Define Refit and Json.net Settings</h3>
+
+<p>Before we start calling the refit API, let’s set up the basic settings that would get 
+Refit to work properly. We only need to define these settings once and they would serve us
+throughout the application. We could keep these settings in a Utility class and make a 
+single call to initialize them but we would keep this example simple and define it in the 
+Main Activity’s OnCreate() method, so that when the activity is created then this settings 
+is initialised. The first thing we have to do is to define the JSON conversion settings and 
+we can do that by adding the following code snippet to the onCreate() method of the MainActivity</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// declare the global settings</span>
+<span class="n">JsonConvert</span><span class="p">.</span><span class="n">DefaultSettings</span> <span class="p">=()=&gt;</span> <span class="k">new</span> <span class="nf">JsonSerializerSettings</span><span class="p">()</span> <span class="p">{</span>  
+  <span class="n">ContractResolver</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">CamelCasePropertyNamesContractResolver</span><span class="p">(),</span>  
+  <span class="n">Converters</span> <span class="p">=</span> <span class="p">{</span> <span class="k">new</span> <span class="nf">StringEnumConverter</span><span class="p">()</span> <span class="p">}</span>  
+ <span class="p">};</span>
+</code></pre></div></div>
+<p>And add the following reference for the code to function properly</p>
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">**</span><span class="k">using</span> <span class="nn">Newtonsoft.Json.Serialization</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Newtonsoft.Json.Converters</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>
+</code></pre></div></div>
+<p>Then we define our global variables in the MainActivity as follows:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="nn">ConnecingToApiExample</span><span class="p">{</span><span class="k">namespace</span> <span class="nn">ConnecingToApiExample</span> <span class="p">{</span>  
+ <span class="p">[</span><span class="nf">Activity</span><span class="p">(</span><span class="n">Label</span> <span class="p">=</span> <span class="s">"ConnecingToApiExample"</span><span class="p">,</span> <span class="n">MainLauncher</span> <span class="p">=</span> <span class="k">true</span><span class="p">,</span> <span class="n">Icon</span> <span class="p">=</span> <span class="s">"@drawable/icon"</span><span class="p">)]</span>  
+ <span class="k">public</span> <span class="k">class</span> <span class="nc">MainActivity</span> <span class="p">:</span> <span class="n">Activity</span>  <span class="p">{</span>  
+     <span class="n">IGitHubApi</span> <span class="n">gitHubApi</span><span class="p">;</span>  
+     <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;</span> <span class="n">users</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;();</span>  
+     <span class="n">List</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;</span> <span class="n">user_names</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;();</span>  
+     <span class="n">Button</span> <span class="n">cake_lyf_button</span><span class="p">;</span>  
+     <span class="n">IListAdapter</span> <span class="n">ListAdapter</span><span class="p">;</span>  
+     <span class="n">ListView</span> <span class="n">listView</span><span class="p">;</span>  
+   
+ <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">OnCreate</span><span class="p">(</span><span class="n">Bundle</span> <span class="n">bundle</span><span class="p">)</span>  
+ <span class="p">{</span>
+ 
+</code></pre></div></div>
+
+<p>…Then lets tell Refit to give us an Implementation of the IGithubApi interface so that we can use it to make calls 
+ to the API, we do that by assigning that implementation to the variable <strong>gitHubApi</strong>.</p>
+
+<p>In the OnCreate() method, let’s get an implementation of our interface and assigned it to the gitHubApi variable like this:</p>
+
+<p><code class="highlighter-rouge">gitHubApi = RestService.For&lt;IGitHubApi&gt;(“https://api.github.com");</code></p>
+
+<p>As you can see this is where you tell Refit about the base URL that we would append the parameters that we declared in <strong>step 5</strong>.</p>
+
+<p>Next let’s get reference to our user interface elements:</p>
+
+<p>First we get the reference to the main.xml, then to the button and then the ListView using the snippet below:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">base</span><span class="p">.</span><span class="nf">OnCreate</span><span class="p">(</span><span class="n">bundle</span><span class="p">);</span>  
+ <span class="nf">SetContentView</span><span class="p">(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Layout</span><span class="p">.</span><span class="n">Main</span><span class="p">);</span>  
+ <span class="n">cake_lyf_button</span> <span class="p">=</span> <span class="n">FindViewById</span><span class="p">&lt;</span><span class="n">Button</span><span class="p">&gt;(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Id</span><span class="p">.</span><span class="n">bt_list_users</span><span class="p">);</span>  
+ <span class="n">listView</span> <span class="p">=</span> <span class="n">FindViewById</span><span class="p">&lt;</span><span class="n">ListView</span><span class="p">&gt;(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Id</span><span class="p">.</span><span class="n">listview_users</span><span class="p">);</span>  
+ <span class="n">cake_lyf_button</span><span class="p">.</span><span class="n">Click</span> <span class="p">+=</span> <span class="n">Cake_lyf_butto_Click</span><span class="p">;</span><span class="err">…</span>
+</code></pre></div></div>
+
+<h3 id="8-make-the-api-call">8. Make the API Call</h3>
+
+<p>Let’s create a method that would make the API call and fill in the List of Users with the result, then convert 
+the result to string and use the string to populate the list of user names. Then use that list of user names to populate
+ the list view in the UI. The method that would do that is given below:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="k">async</span> <span class="k">void</span> <span class="nf">getUsers</span><span class="p">(){</span>  
+  <span class="k">try</span> <span class="p">{</span>  
+  <span class="n">ApiResponse</span> <span class="n">response</span> <span class="p">=</span> <span class="k">await</span> <span class="n">gitHubApi</span><span class="p">.</span><span class="nf">GetUser</span><span class="p">();</span>  
+  <span class="n">users</span> <span class="p">=</span> <span class="n">response</span><span class="p">.</span><span class="n">items</span><span class="p">;</span>  
+   
+ <span class="k">foreach</span> <span class="p">(</span><span class="n">User</span> <span class="n">user</span> <span class="k">in</span> <span class="n">users</span><span class="p">)</span> <span class="p">{</span>  
+  <span class="n">user_names</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="nf">ToString</span><span class="p">());</span>  
+ <span class="p">}</span>  
+  <span class="n">ListAdapter</span> <span class="p">=</span> <span class="k">new</span> <span class="n">ArrayAdapter</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;(</span><span class="k">this</span><span class="p">,</span> <span class="n">Android</span><span class="p">.</span><span class="n">Resource</span><span class="p">.</span><span class="n">Layout</span><span class="p">.</span><span class="n">SimpleListItem1</span><span class="p">,</span> <span class="n">user_names</span><span class="p">);</span>  
+  <span class="n">listView</span><span class="p">.</span><span class="n">Adapter</span> <span class="p">=</span> <span class="n">ListAdapter</span><span class="p">;</span>  
+ <span class="p">}</span>  
+ <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="p">)</span> <span class="p">{</span>  
+  <span class="n">Toast</span><span class="p">.</span><span class="nf">MakeText</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="n">ex</span><span class="p">.</span><span class="n">StackTrace</span><span class="p">,</span> <span class="n">ToastLength</span><span class="p">.</span><span class="n">Long</span><span class="p">).</span><span class="nf">Show</span><span class="p">();</span>  
+  <span class="p">}</span>  
+ <span class="p">}</span>
+</code></pre></div></div>
+
+<p>This line</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">ApiResponse</span> <span class="n">response</span> <span class="p">=</span> <span class="k">await</span> <span class="n">gitHubApi</span><span class="p">.</span><span class="nf">GetUser</span><span class="p">();</span>
+</code></pre></div></div>
+<p>is responsible for making the API call, since the call to the API returns a <strong>Task</strong> of type <strong>ApiResponse</strong>,
+ to get the object we have to <strong>await</strong> the <strong>Task</strong> and thus the method has to be an <strong>async</strong> method as you 
+ can see from the method signature.</p>
+
+<p>This method is called when the button is clicked so we just call it in the button clicked event handler of the button as shown below:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">private</span> <span class="k">void</span> <span class="nf">Cake_lyf_butto_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">){</span>  
+   <span class="nf">getUsers</span><span class="p">();</span>
+ <span class="p">}</span>
+</code></pre></div></div>
+
+<p>After you run the application and the button is clicked, this is the result.</p>
+
+<p><img src="/img/1_jLM8L5gWlMZyMBtfN4TOA.png" alt="" /></p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>Refit really makes making API calls easy and properly structured, you can explore more about the library by checking 
+out their GitHub repo <a href="https://github.com/paulcbetts/refit">https://github.com/paulcbetts/refit</a></p>
+
+<p>The complete source code form the different files are shown below in case you do understand the different snippets</p>
+
+<p><strong>MainActivity.cs</strong></p>
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Android.App</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Android.OS</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Android.Widget</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Refit</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">ConnecingToApiExample.Interface</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">ConnecingToApiExample.Model</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Android.Util</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Newtonsoft.Json.Serialization</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Newtonsoft.Json.Converters</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">System</span><span class="p">;</span>  
+  
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample</span> <span class="p">{</span>  
+ <span class="p">[</span><span class="nf">Activity</span><span class="p">(</span><span class="n">Label</span> <span class="p">=</span> <span class="s">"ConnecingToApiExample"</span><span class="p">,</span> <span class="n">MainLauncher</span> <span class="p">=</span> <span class="k">true</span><span class="p">,</span> <span class="n">Icon</span> <span class="p">=</span> <span class="s">"@drawable/icon"</span><span class="p">)]</span>  
+  <span class="k">public</span> <span class="k">class</span> <span class="nc">MainActivity</span> <span class="p">:</span> <span class="n">Activity</span> <span class="p">{</span>  
+   <span class="n">IGitHubApi</span> <span class="n">gitHubApi</span><span class="p">;</span>  
+   <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;</span> <span class="n">users</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;();</span>  
+   <span class="n">List</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;</span> <span class="n">user_names</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;();</span>  
+   <span class="n">Button</span> <span class="n">cake_lyf_button</span><span class="p">;</span>  
+   <span class="n">IListAdapter</span> <span class="n">ListAdapter</span><span class="p">;</span>  
+   <span class="n">ListView</span> <span class="n">listView</span><span class="p">;</span>  
+   
+ <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">OnCreate</span><span class="p">(</span><span class="n">Bundle</span> <span class="n">bundle</span><span class="p">)</span> <span class="p">{</span>  
+   <span class="k">try</span> <span class="p">{</span>  
+    <span class="k">base</span><span class="p">.</span><span class="nf">OnCreate</span><span class="p">(</span><span class="n">bundle</span><span class="p">);</span>  
+    <span class="nf">SetContentView</span><span class="p">(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Layout</span><span class="p">.</span><span class="n">Main</span><span class="p">);</span>  
+    <span class="n">cake_lyf_button</span> <span class="p">=</span> <span class="n">FindViewById</span><span class="p">&lt;</span><span class="n">Button</span><span class="p">&gt;(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Id</span><span class="p">.</span><span class="n">bt_list_users</span><span class="p">);</span>  
+    <span class="n">listView</span> <span class="p">=</span> <span class="n">FindViewById</span><span class="p">&lt;</span><span class="n">ListView</span><span class="p">&gt;(</span><span class="n">Resource</span><span class="p">.</span><span class="n">Id</span><span class="p">.</span><span class="n">listview_users</span><span class="p">);</span>  
+    <span class="n">cake_lyf_button</span><span class="p">.</span><span class="n">Click</span> <span class="p">+=</span> <span class="n">Cake_lyf_butto_Click</span><span class="p">;</span>  
+    <span class="n">JsonConvert</span><span class="p">.</span><span class="n">DefaultSettings</span> <span class="p">=()=&gt;</span> <span class="k">new</span> <span class="nf">JsonSerializerSettings</span><span class="p">(){</span>  
+    <span class="n">ContractResolver</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">CamelCasePropertyNamesContractResolver</span><span class="p">(),</span>  
+     <span class="n">Converters</span> <span class="p">=</span> <span class="p">{</span> <span class="k">new</span> <span class="nf">StringEnumConverter</span><span class="p">()</span> <span class="p">}</span>  
+ <span class="p">};</span>  
+ <span class="n">gitHubApi</span> <span class="p">=</span> <span class="n">RestService</span><span class="p">.</span><span class="n">For</span><span class="p">&lt;</span><span class="n">IGitHubApi</span><span class="p">&gt;(</span><span class="s">"https://api.github.com"</span><span class="p">);</span> <span class="p">}</span>  
+ <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="p">)</span> <span class="p">{</span>  
+   <span class="n">Log</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="s">"Ozioma See"</span><span class="p">,</span> <span class="n">ex</span><span class="p">.</span><span class="n">Message</span><span class="p">);</span>  
+   <span class="p">}</span>  
+ <span class="p">}</span>  
+ <span class="k">private</span> <span class="k">void</span> <span class="nf">Cake_lyf_butto_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>  
+  <span class="nf">getUsers</span><span class="p">();</span>  
+ <span class="p">}</span>   
+  <span class="k">private</span> <span class="k">async</span> <span class="k">void</span> <span class="nf">getUsers</span><span class="p">()</span> <span class="p">{</span>  
+  <span class="k">try</span> <span class="p">{</span>  
+   <span class="n">ApiResponse</span> <span class="n">response</span> <span class="p">=</span> <span class="k">await</span> <span class="n">gitHubApi</span><span class="p">.</span><span class="nf">GetUser</span><span class="p">();</span>  
+   <span class="n">users</span> <span class="p">=</span> <span class="n">response</span><span class="p">.</span><span class="n">items</span><span class="p">;</span>    
+ <span class="k">foreach</span> <span class="p">(</span><span class="n">User</span> <span class="n">user</span> <span class="k">in</span> <span class="n">users</span><span class="p">)</span> <span class="p">{</span>  
+   <span class="n">user_names</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="nf">ToString</span><span class="p">());</span>  
+ <span class="p">}</span>  
+ <span class="n">ListAdapter</span> <span class="p">=</span> <span class="k">new</span> <span class="n">ArrayAdapter</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;(</span><span class="k">this</span><span class="p">,</span> <span class="n">Android</span><span class="p">.</span><span class="n">Resource</span><span class="p">.</span><span class="n">Layout</span><span class="p">.</span><span class="n">SimpleListItem1</span><span class="p">,</span> <span class="n">user_names</span><span class="p">);</span>  
+ <span class="n">listView</span><span class="p">.</span><span class="n">Adapter</span> <span class="p">=</span> <span class="n">ListAdapter</span><span class="p">;</span> 
+ <span class="p">}</span>  
+ <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="p">){</span>  
+    <span class="n">Toast</span><span class="p">.</span><span class="nf">MakeText</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="n">ex</span><span class="p">.</span><span class="n">StackTrace</span><span class="p">,</span> <span class="n">ToastLength</span><span class="p">.</span><span class="n">Long</span><span class="p">).</span><span class="nf">Show</span><span class="p">();</span>  
+    <span class="p">}</span>  
+  <span class="p">}</span>  
+ <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>2. Main.axml</strong></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>  
+<span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>  
+ <span class="na">android:orientation=</span><span class="s">"vertical"</span>  
+ <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>  
+ <span class="na">android:layout_height=</span><span class="s">"match_parent"</span><span class="nt">&gt;</span>  
+ <span class="nt">&lt;Button</span>  
+ <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>  
+ <span class="na">android:layout_height=</span><span class="s">"wrap_content"</span>  
+ <span class="na">android:text=</span><span class="s">"List Users"</span>  
+ <span class="na">android:id=</span><span class="s">"@+id/bt_list_users"</span> <span class="nt">/&gt;</span>  
+ <span class="nt">&lt;ListView</span>  
+ <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>  
+ <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>  
+ <span class="na">android:id=</span><span class="s">"@+id/listview_users"</span>  
+ <span class="na">android:background=</span><span class="s">"#000000"</span> <span class="nt">/&gt;</span>  
+<span class="nt">&lt;/LinearLayout&gt;</span>
+</code></pre></div></div>
+
+<p><strong>3. ApiResponse.cs</strong></p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>  
+  
+ <span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Model</span> <span class="p">{</span>  
+  <span class="k">public</span> <span class="k">class</span> <span class="nc">ApiResponse</span> <span class="p">{</span>  
+  <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"total_count"</span><span class="p">)]</span>  
+  <span class="k">public</span> <span class="kt">string</span> <span class="n">totalCount</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+   <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"incomplete_results"</span><span class="p">)]</span>  
+   <span class="k">public</span> <span class="kt">string</span> <span class="n">incompleteResults</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+   <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"items"</span><span class="p">)]</span>  
+   <span class="k">public</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">User</span><span class="p">&gt;</span> <span class="n">items</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+  
+   <span class="k">public</span> <span class="k">override</span> <span class="kt">string</span> <span class="nf">ToString</span><span class="p">(){</span>  
+   <span class="k">return</span> <span class="n">totalCount</span><span class="p">;</span> 
+    <span class="p">}</span> 
+   <span class="p">}</span>  
+ <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>4. User.cs</strong></p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">Newtonsoft.Json</span><span class="p">;</span>  
+   
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Model</span><span class="p">{</span>  
+ <span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>  <span class="p">{</span>  
+    <span class="p">[</span><span class="nf">JsonProperty</span><span class="p">(</span><span class="n">PropertyName</span> <span class="p">=</span> <span class="s">"login"</span><span class="p">)]</span>  
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">userName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>  
+    <span class="k">public</span> <span class="k">override</span> <span class="kt">string</span> <span class="nf">ToString</span><span class="p">(){</span>  
+      <span class="k">return</span> <span class="n">userName</span><span class="p">;}</span>  
+  <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>5. IGitHubApi.cs</strong></p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">System.Threading.Tasks</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">Refit</span><span class="p">;</span>  
+<span class="k">using</span> <span class="nn">ConnecingToApiExample.Model</span><span class="p">;</span>  
+  
+<span class="k">namespace</span> <span class="nn">ConnecingToApiExample.Interface</span> <span class="p">{</span>  
+  <span class="p">[</span><span class="nf">Headers</span><span class="p">(</span><span class="s">"User-Agent: :request:"</span><span class="p">)]</span>  
+  <span class="k">interface</span> <span class="nc">IGitHubApi</span> <span class="p">{</span>  
+   <span class="p">[</span><span class="nf">Get</span><span class="p">(</span><span class="s">"/search/users?q=location:lagos"</span><span class="p">)]</span>  
+   <span class="n">Task</span><span class="p">&lt;</span><span class="n">ApiResponse</span><span class="p">&gt;</span> <span class="nf">GetUser</span><span class="p">();</span>  
+  <span class="p">}</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>I have also added the source code of this tutorial in my git repository here:</p>
+
+<p><a href="https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample"><strong>Oziomajnr/Xamarin-Refit-Api-Connection</strong></a></p>
+
+  </div><div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html';
+      this.page.identifier = 'https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html';
+    };
+
+    (function() {
+      var d = document, s = d.createElement('script');
+
+      s.src = 'https://oziomas-blog.disqus.com/embed.js';
+
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript><a class="u-url" href="/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html" hidden></a>
+</article>
+
+    </div>
+</main><footer class="site-footer h-card">
+    <data class="u-url" href="/"></data>
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+            <div class="footer-col one-half">
+                <h2 class="footer-heading">Ozioma Ogbe</h2>
+                <ul class="contact-list">
+                    <li class="p-name">{&quot;twitter&quot;=&gt;&quot;oziomajnr&quot;}</li></ul>
+            </div>
+
+            <div class="social-links"><ul class="social-media-list"></ul>
+</div>
+        </div>
+        <form action="https://getsimpleform.com/messages?form_api_token=1971f93bf364c88720ddd88d8495d7fe" method="post"
+              class='form-inline'>
+            <input type='email' name='name' placeholder='Subscribe' class='form-control'/>
+            <button type='submit' class='btn btn-primary'>Subscribe</button>
+            <input type='hidden' name='redirect_to' value='http://blog.oziomaogbe.com/static/subscribe_thank_you.html'/>
+        </form>
+    </div>
+
+</footer>
+</body>
+
+
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>3 Useful tips for using Google Cloud Datastore. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="3 Useful tips for using Google Cloud Datastore." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database." />
+<meta property="og:description" content="Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-08-24T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"3 Useful tips for using Google Cloud Datastore.","dateModified":"2018-08-24T00:00:00+00:00","description":"Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database.","datePublished":"2018-08-24T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://blog.oziomaogbe.com/feed.xml" title="Ozioma Ogbe" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-145161693-1"></script>
+<script>
+  window['ga-disable-UA-145161693-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145161693-1');
+</script>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>3 Useful tips for using Google Cloud Datastore. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="3 Useful tips for using Google Cloud Datastore." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database." />
+<meta property="og:description" content="Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database." />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-08-24T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"3 Useful tips for using Google Cloud Datastore.","dateModified":"2018-08-24T00:00:00+00:00","description":"Google Cloud Datastore is a managed, schema-less and highly scalable NoSql database that is especially helpful for developers who want to worry less about scaling their database as usage grow. It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider it for your next project, but before you do so here are some quick tips that you should know so as to avoid some pitfalls with using this database.","datePublished":"2018-08-24T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ozioma Ogbe</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects.html">Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">3 Useful tips for using Google Cloud Datastore.</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2018-08-24T00:00:00+00:00" itemprop="datePublished">Aug 24, 2018
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p align="center">
+ <img src="/img/google_data_store_pic.png" alt="Event bus explanation" />
+</p>
+
+<p>Google Cloud Datastore is a managed, schema-less and highly scalable <a href="https://hackernoon.com/tagged/nosql">NoSql</a>
+ database that is especially helpful for developers who want to worry less about scaling their database as usage grow.
+ It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider
+ it for your next project, but before you do so here are some quick tips that you should know so as to avoid some 
+ pitfalls with using this database.</p>
+
+<p><strong><em>1</em></strong>. <strong>Google Cloud Datastore is not SQL, its not even close.</strong></p>
+
+<p>   Google Cloud Datastore is a NOSQL database but when people and documentations try to explain the concept they tend 
+to compare it with SQL e.g Entities could be compared to Tables and its properties to Columns, 
+since a lot of developers are already familiar with SQL. Also Datastore also has a powerful query engine that
+ allows you to query for data and even sort the data accordingly, this might make developers assume that 
+ they can model their data like they do in SQL. But the truth is that Datastore’s underlying implementation 
+ is quite different from SQL, here are some key differences.</p>
+
+<p><em>I</em>. <em>No Auto-Increment Primary Keys</em>:<br />
+   Unlike SQL where you can generally have an Auto-increment Primary key that increments with each write,
+ In Google Cloud Datastore Entities are identified by a <a href="https://cloud.google.com/datastore/docs/reference/data/rest/v1/Key">KEY</a> 
+ which is made unique with a combination of its <a href="https://cloud.google.com/datastore/docs/concepts/entities#kinds_and_identifiers">Kind and its Identifier</a> 
+ the Identifier is either an ID that Datastore automatically generates for you or a 
+ <a href="https://cloud.google.com/datastore/docs/concepts/entities#kinds_and_identifiers">Key Name Property </a> 
+ that you can provide as an identifier to Datastore which is a String that you are sure would be unique for each entity
+  of that kind.</p>
+
+<blockquote>
+  <p>Note: Identifiers are only unique within a kind and cannot be changed after the entity is created.</p>
+</blockquote>
+
+<p><em>II</em>. <em>No Foreign Key Constraints</em>: In Datastore, you can reference other Entities using their 
+<a href="https://cloud.google.com/datastore/docs/reference/data/rest/v1/Key"><strong>Key</strong></a> 
+but no data integrity checks are done when writing or deleting these Entities so you cannot ensure that they entity 
+whose key you’re referencing actually exist. You have to be careful here because this is the point where there is 
+extreme likelihood of data integrity problems.</p>
+
+<p><em>III</em>. <em>Datastore Does not Enforce uniqueness</em>: Apart from the Identifier mentioned in (I) above,
+ Google Cloud Datastore does not allow you to specify uniqueness for any other fields in an Entity, 
+ if you wish to ensure uniqueness you would have to implement that by yourself by performing a read at 
+ the point of writing the Entity.</p>
+
+<p><strong><em>2</em></strong>. <strong>Know what to Index very early:</strong></p>
+
+<p>Google Cloud Datastore makes use of <a href="https://cloud.google.com/datastore/docs/concepts/indexes">Indexes</a> 
+to aid querying, indexing fields in an Entity is very important to querying in datastore, in fact,
+ if you do not index a field and attempt to filter in a query with that field, you would get no result even 
+ if the query matches a result, this is because Datastore only looks up the indexes when querying, 
+ it does not allow you to do a full table scan to get results of queries like many other database does.</p>
+
+<p>There are two types of indexing in Datastore, Basic Index and Composite index, 
+basic index is used on single property fields while Composite index is used when you intend to filter by multiple fields.</p>
+
+<blockquote>
+  <p>It is important to know what fields you would like to index early because indexes could take too 
+long to build especially when you have very many entities in your database.In fact for single property 
+indexes they are not built automatically after indexing them, the index is built with each write, 
+so if you have 1 million entities of that kind and you intend to intend to index a field you would have to read each 
+of the 1 million entities and write them back for the index to be recorded, this can be very expensive. 
+Also when you try to query with composite fields that you have not indexed, you get an error even if you have
+ indexed these fields and it is not done building the indexes.</p>
+</blockquote>
+
+<p>So to avoid these issues, try to think about fields you would want to use in your query and index them very early.</p>
+
+<p><strong><em>3</em></strong>. <em>How to count Entities (Sharded Counters):</em> 
+Unlike SQL where you could easily use the query select <code class="highlighter-rouge">count(*)</code> to get the number of items in a Table,
+Datastore queries do not have any such syntax, you have to keep count of your Entities by yourself using other Entities, 
+so if you have an Entity called <strong>User</strong> and you wish to know how many users are in your database then you need to
+ have another Entity lets call it UserCount . 
+ The UserCount Entity would have an numeric field that would increase anytime a User is written to the database 
+ and decrease when a User is deleted from the database. This is fairly simple, but a problem might arise when the 
+ count needs to update frequently, lets say 20 times per second. 
+ This could lead to <a href="https://cloud.google.com/appengine/articles/scaling/contention">DataStore Contention Error</a> 
+ which implies that each concurrent request to update the item could not be completed before their request is timeout. 
+ This problem is solved using <a href="https://cloud.google.com/appengine/articles/sharding_counters"><strong>Sharded Counter</strong></a> 
+ which simply implies creating fragments of that entity (shards) and randomly picking each of those entities 
+ to update when you need to update the count, this would reduce the probability of getting the Datastore Contention error.</p>
+
+<blockquote>
+  <p>Note: The higher the number of shards, the lesser the likelihood of getting the Data Contention Error,
+ the <a href="https://github.com/GoogleCloudPlatform/appengine-sharded-counters-java">Google Cloud Samples</a>
+  has a decent example on how to implement Sharded counters.So there you have it, while Datastore promises Scalability,
+   it has some downsides too which is especially in Data integrity and Querying and you should consider these things 
+   before using it for a project.</p>
+</blockquote>
+
+<p><strong>If you have other tips you would like to share, you can add it in the comments below, thanks</strong>.</p>
+
+  </div><div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html';
+      this.page.identifier = 'https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html';
+    };
+
+    (function() {
+      var d = document, s = d.createElement('script');
+
+      s.src = 'https://oziomas-blog.disqus.com/embed.js';
+
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript><a class="u-url" href="/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html" hidden></a>
+</article>
+
+    </div>
+</main><footer class="site-footer h-card">
+    <data class="u-url" href="/"></data>
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+            <div class="footer-col one-half">
+                <h2 class="footer-heading">Ozioma Ogbe</h2>
+                <ul class="contact-list">
+                    <li class="p-name">{&quot;twitter&quot;=&gt;&quot;oziomajnr&quot;}</li></ul>
+            </div>
+
+            <div class="social-links"><ul class="social-media-list"></ul>
+</div>
+        </div>
+        <form action="https://getsimpleform.com/messages?form_api_token=1971f93bf364c88720ddd88d8495d7fe" method="post"
+              class='form-inline'>
+            <input type='email' name='name' placeholder='Subscribe' class='form-control'/>
+            <button type='submit' class='btn btn-primary'>Subscribe</button>
+            <input type='hidden' name='redirect_to' value='http://blog.oziomaogbe.com/static/subscribe_thank_you.html'/>
+        </form>
+    </div>
+
+</footer>
+</body>
+
+
+
+</html>

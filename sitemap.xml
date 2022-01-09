@@ -1,0 +1,1617 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ozioma Ogbe</title>
+    <description>Hi, I am a Software Engineer and I enjoy solving problems and sharing my solutions, I have worked with many technologies but I am more focused on native android application development for now.
+ I write primarily about software development and I hope to write about chess and start up in the future</description>
+    <link>https://blog.oziomaogbe.com/</link>
+    <atom:link href="https://blog.oziomaogbe.com/sitemap.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 09 Jan 2022 13:24:00 +0000</pubDate>
+    <lastBuildDate>Sun, 09 Jan 2022 13:24:00 +0000</lastBuildDate>
+    <generator>Jekyll v3.8.6</generator>
+    
+      <item>
+        <title>Optimal Stopping: Testing the 37% rule as a solution to the secretary problem.</title>
+        <description>&lt;p&gt;While reading chapter one of the book &lt;strong&gt;&lt;a href=&quot;https://www.amazon.com/Algorithms-Live-Computer-Science-Decisions/dp/1627790365&quot;&gt;Algorithms to Live By: The Computer Science of Human Decisions&lt;/a&gt;&lt;/strong&gt;
+I came across an interesting problem with an interesting solution, &lt;a href=&quot;https://www.amazon.com/Algorithms-Live-Computer-Science-Decisions/dp/1627790365&quot;&gt;The Secretary Problem&lt;/a&gt;   the problem statement is as follows&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Imagine an administrator who wants to hire the best secretary out of &lt;em&gt;n&lt;/em&gt; rankable applicants for a position. The applicants are interviewed one by one in random order. A decision about each particular applicant is to be made immediately after the interview. Once rejected, an applicant cannot be recalled. During the interview, the administrator gains information sufficient to rank the applicant among all applicants interviewed so far, but is unaware of the quality of yet unseen applicants. The question is about the optimal strategy  (&lt;a href=&quot;https://en.wikipedia.org/wiki/Stopping_rule&quot; title=&quot;Stopping rule&quot;&gt;stopping rule&lt;/a&gt;) to maximise the probability of selecting the best applicant.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Here are some inference from the problem statement.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The applicants are interviewed in random order&lt;/li&gt;
+  &lt;li&gt;You can decide to select an applicant on the spot, if you decide to pass over the applicant, you cannot go back and select them.&lt;/li&gt;
+  &lt;li&gt;You are “unaware of the quality of the  yet unseen applicant”. This implies that you do not have any information other than how the applicants you have interviewed so far compare to each other. If that condition was absent, then you can tell if you have interviewed an applicant that is exceptional and you do not want to risk losing him and thus hire him immediately.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;A solution to this problem as stated in the book is that you should &lt;strong&gt;select the best candidate so far after considering about 37% of the total candidates.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;So if you have 100 candidates, you should consider interview the first 37 candidates, take note of the best of them but don’t hire him and then moving forward you should select any candidate that is better then the best candidate you have seen so far.&lt;/p&gt;
+
+&lt;p&gt;The solution looked simplistic to me and I thought it would stand a high chance of not getting the right candidate best candidate. But the solution also states that this method would lead to selecting the single best candidate about 37% of the time, you can check the &lt;a href=&quot;https://en.wikipedia.org/wiki/Secretary_problem&quot;&gt;wikipedia article&lt;/a&gt; for the details.&lt;/p&gt;
+
+&lt;p&gt;In this article, I would attempt to test the rule by running two simulations of the problem one with 100 applicant and another with 1000 applicants. We would rely on the &lt;a href=&quot;https://en.wikipedia.org/wiki/Law_of_large_numbers&quot;&gt;Law of Large Numbers&lt;/a&gt; for our experiment by running the simulation 1 million times. We would also check the result for other stopping points, particularly integers between 1 and 100.&lt;/p&gt;
+
+&lt;p&gt;We would judge the result of the experiment based on the following criteria&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The total number  times the best candidate is selected for the 1 million times the experiment was ran should be maximum at around 37%.&lt;/li&gt;
+  &lt;li&gt;For other stoppage points further away from 37%, there should be a considerable drop in the total number of time s the best candidate is selected.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To simulate the solution to the problem I wrote a Kotlin script that models the Secretary and their interview performance as an integer value&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;data class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Secretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;the performance of one secretary compared to another would be determined by comparing its value with the other secretary.&lt;/p&gt;
+
+&lt;p&gt;The function to simulate the selection process is shown&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;simulateFindingBestSecretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;percentageToLeap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Boolean&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;percentageToLeap&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;percentageToLeap&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+        &lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Percentage to leap must be between 1-100&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;numberOfSecretaries&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1000&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;leapValue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;percentageToLeap&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberOfSecretaries&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;allSecretaries&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberOfSecretaries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shuffled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;-&amp;gt;&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;Secretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;bestSecretaryFromFirst37Percent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;  
+        &lt;span class=&quot;n&quot;&gt;allSecretaries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;take&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;leapValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;maxByOrNull&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;it&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!!&lt;/span&gt;  
+  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;selectedSecretary&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;allSecretaries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;takeLast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numberOfSecretaries&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;leapValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;firstOrNull&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;secretary&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;-&amp;gt;&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;secretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bestSecretaryFromFirst37Percent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;allSecretaries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;  
+  
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;selectedSecretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numberOfSecretaries&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The function has an argument &lt;code class=&quot;highlighter-rouge&quot;&gt;percentageToLeap: Int&lt;/code&gt; which I could be a value between 1-100, this would enable us run the experiment for different stopping point. What the function does is select the best candidate from the first n percent of candidates and then checks the rest of the pool of candidates to see if there is a candidate that is better than the best candidate we have so far, if we find any candidate we pick that one, if we do not find any candidate we just select the last person we interview.&lt;/p&gt;
+
+&lt;p&gt;to change the number of applicants in the pool, just set the variable &lt;code class=&quot;highlighter-rouge&quot;&gt;val numberOfSecretaries&lt;/code&gt;
+to whatever value you want.&lt;/p&gt;
+
+&lt;p&gt;then we run the simulation for each stopping point 1 million times and save the number of times the best candidate was selected for each stopping point in the IntArray &lt;code class=&quot;highlighter-rouge&quot;&gt;resultArray&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;resultArray&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IntArray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+         &lt;span class=&quot;m&quot;&gt;0&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1000000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;simulateFindingBestSecretary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;percent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+                &lt;span class=&quot;n&quot;&gt;resultArray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;percent&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]++&lt;/span&gt;  
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+        &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resultArray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;contentToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;  
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The complete code for the experiment can be found in this &lt;a href=&quot;https://gist.github.com/bb381f72946541c4059df8491ac4356a&quot;&gt;GitHub gist&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;result&quot;&gt;Result:&lt;/h2&gt;
+&lt;p&gt;I have plotted the result of the experiment on a column chart below&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;h3 id=&quot;100-applicants&quot;&gt;100 Applicants:&lt;/h3&gt;
+
+    &lt;p&gt;For the simulation with 100 applicants, I got the start below and the maximum number of time the best candidate was selected for all the stoppages was &lt;strong&gt;371238&lt;/strong&gt; this happened when we selected &lt;strong&gt;36%&lt;/strong&gt; of the candidate as the stopping point.&lt;/p&gt;
+    &lt;p align=&quot;center&quot;&gt;
+  &lt;img src=&quot;/img/Secretary_Problem_Simlation_100_Applicants.png&quot; alt=&quot;Chart with 1000 applicants&quot; /&gt;
+&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h3 id=&quot;1000-applicants&quot;&gt;1000 Applicants&lt;/h3&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;With 1000 applicants the maximum time the best applicant was selected was &lt;strong&gt;369144&lt;/strong&gt; and this happened when we stopped searching after interviewing &lt;strong&gt;37%&lt;/strong&gt; of the applicants.&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/SecretaryProblem_1000_applicants.png&quot; alt=&quot;Chart with 1000 applicants&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://docs.google.com/spreadsheets/d/1P_9LR38v8KB6CHAIqWeP-HN8aDnd_WGFMjSFIZivX2c/edit?usp=sharing&quot;&gt;Link to Spreadsheet of result and graph&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The result from the two simulations and the resulting graphs shows meets the judgement criteria that we mentioned earlier&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The total number times the best candidate is selected for the 1 million times the experiment was ran should be maximum at around 37%.&lt;/li&gt;
+  &lt;li&gt;For other stoppage points further away from 37%, there should be a considerable drop in the total number of time s the best candidate is selected.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Point two is apparent from the shape of the graph, points farther away from the 37% mark have less likelihood of yielding the best result.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;A 37% chance of making the correct decision is relative low especially for decisions that we would have to make once, also, the problem statement for the Secretary problem is a simplified version of most of the optimal stopping problem we would face but its still fascinating that there are mathematical solutions to decision making problems like this. Some other variations to the problem and their solution can be found in the &lt;a href=&quot;https://en.wikipedia.org/wiki/Secretary_problem&quot;&gt;Wikipedia article&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2022/01/09/secretary-problem-experiment.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2022/01/09/secretary-problem-experiment.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>My top 5 favorite software engineering Podcasts</title>
+        <description>&lt;p&gt;Podcasts have become a big part of my daily routine for the past three months. 
+As a remote developer I do not get to be around co-workers regularly to discuss technology and developments, so
+Podcasts have served as a substitute source of information.
+I get to learn how engineers from top tech companies
+tackle their technical challenges and how developers find the motivation to push their projects and careers.&lt;/p&gt;
+
+&lt;p&gt;In this article, I have listed out some of my favorite Podcasts focused on Software Engineering and technology in general.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://softwareengineeringdaily.com&quot;&gt;&lt;strong&gt;Software Engineering Daily&lt;/strong&gt;&lt;/a&gt;
+  This is by far my favorite, with at least an episode for every day of the week,
+  you would think there would be a compromise in quality of its content but that is not so.
+  Software Engineering daily interviews Software Engineers and Tech Entrepreneurs and they talk about how they built 
+  their products, company culture, and how they overcame challenged while doing so.
+  The host is very interesting and he is skilled in juicing out interesting topics from interviews with Engineers from varying backgrounds.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://www.se-radio.net&quot;&gt;&lt;strong&gt;Software Engineering Radio&lt;/strong&gt;&lt;/a&gt; 
+  Sponsored by IEEE, Software Engineering Radio interviews Software Professional and tech experts where they
+get to share their ideas and advice on a wide range of topic, the content of this Podcast is similar to
+  Software Engineering Daily, even though Software Engineering radio might appear to be more professional and
+less frequent (about 3-4 episodes a month).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;http://talkingkotlin.com&quot;&gt;&lt;strong&gt;Talking Kotlin&lt;/strong&gt;&lt;/a&gt;
+ Talking Kotlin is a podcast that is a from Jet Brains where they talk about the advancement of the Kotlin Language,
+ you learn how different teams are applying the Kotlin language in their platforms.
+ If you are a Kotlin developer and you want to know how different people are using the Kotlin programming language,
+ then you could check out this podcast. The host is funny too.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://fragmentedpodcast.com&quot;&gt;&lt;strong&gt;Fragmented Podcast&lt;/strong&gt;&lt;/a&gt;
+Fragmented Podcast is a Podcast for Android developers, topics from this range from best practices in building android
+applications, the Kotlin and Java programming language, sometimes they also get to interview some top android
+developers from around the world. Episodes are less frequent these days though.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://podcast.freecodecamp.org&quot;&gt;&lt;strong&gt;Free Code Camp&lt;/strong&gt;&lt;/a&gt;
+If you’re learning how to code or you need some motivating stories about how people living regular lives became
+outstanding Software Engineers, then you would enjoy the free code camp Podcast. Most of the time,
+this Podcast picks some interesting stories from free code camp blog and read it out, this is usually easier to consume
+than reading a blog. They also interview some engineers too and they talk about how they were able to overcome
+obstacles to become software engineers.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Podcasts have an advantage over Blogs and videos because of its “passive consumption format”,
+you do not have to be visually engaged in it to consume
+the content. You can listen to Podcasts while engaging in a variety of activities and it is something I have come to enjoy recently.&lt;/p&gt;
+
+&lt;p&gt;What are your favorite Podcasts?&lt;/p&gt;
+</description>
+        <pubDate>Mon, 21 Oct 2019 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2019/10/21/my-top-5-favorite-software-engineering-podcasts.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2019/10/21/my-top-5-favorite-software-engineering-podcasts.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>How I built my blog using Jekyll, Firebase, Github and Travis CI</title>
+        <description>&lt;p&gt;I recently decided to write my technical content on my personal blog instead of on Medium,
+ but to write on your blog you need to have a blog 😀. So I decided to build one with the following requirements,&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;I can easily manage the content and churn out new articles without having to write some HTML.&lt;/li&gt;
+  &lt;li&gt;Free hosting (you cannot pay for everything 😁).&lt;/li&gt;
+  &lt;li&gt;Custom domain name.&lt;/li&gt;
+  &lt;li&gt;Should have TLS and certificate should be free.&lt;/li&gt;
+  &lt;li&gt;Deploying new content should be easy.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I searched around some possible options like Wordpress, Drupal, etc… 
+ they did not really meet my expectations so I decided to check out the personal blog of some developers, 
+ I found  &lt;a href=&quot;https://jakewharton.com/blog/&quot;&gt;Jake Whartson’s Blog&lt;/a&gt; and &lt;a href=&quot;https://chris.banes.dev&quot;&gt;Chris Bane’s blog&lt;/a&gt; 
+ interesting because of the simple style and then I saw an article on how Chris had built his using a tool called 
+ &lt;a href=&quot;https://jekyllrb.com&quot;&gt;Jekyll&lt;/a&gt; which is a tool that builds your blog as static web pages, this sounded cool because 
+ I had built my business card web page &lt;a href=&quot;http://oziomaogbe.com&quot;&gt;http://oziomaogbe.com&lt;/a&gt; as a simple static site and I hosted it on 
+ &lt;a href=&quot;https://firebase.google.com/docs/hosting&quot;&gt;Firebase Hosting&lt;/a&gt; for free and I was able to get free SSL certificates too,
+  building the blog would not be any different, so I decided to go with that option. 
+  I would build the blog using &lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt;, host it on &lt;a href=&quot;https://firebase.google.com/docs/hosting&quot;&gt;Firebase&lt;/a&gt;, 
+  host the code for the website on Github (I could have used any Git service, like Bitbucket on Gitlab but
+   I wanted to see my contributions grow on my public profile 😉). I had used &lt;a href=&quot;http://travis-ci.org&quot;&gt;Tavis CI&lt;/a&gt; for
+    my  business card too so I decided to use it for deploying the blog to firebase anytime I push my changes to Github. 
+&lt;br /&gt; &lt;br /&gt;
+Lets get to the fun stuff
+&lt;br /&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;https://media1.giphy.com/media/mGuuaZ84ou7KM/giphy.gif&quot; alt=&quot;Let's get to the fun&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt; &lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
+&lt;h2 align=&quot;center&quot;&gt; Building the blog&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;h3 id=&quot;setting-up-jekyll&quot;&gt;Setting up Jekyll:&lt;/h3&gt;
+    &lt;p&gt;The downside to Jekyll is that you have it know some coding to modify the layout of your blog,
+    but there are many &lt;a href=&quot;https://jekyllthemes.io/free&quot;&gt;free Jekyll themes&lt;/a&gt; available and this site is using one of them, 
+    also you have to write your blog posts as &lt;a href=&quot;https://en.wikipedia.org/wiki/Markdown&quot;&gt;Markdown&lt;/a&gt;
+     but with markdown editing tools like &lt;a href=&quot;https://stackedit.io/app#&quot;&gt;Stack Edit&lt;/a&gt; 
+      this is not any different than writing in Medium.com. 
+   To setup Jekyll you have to install it using &lt;a href=&quot;https://www.ruby-lang.org/en/downloads/&quot;&gt;Ruby&lt;/a&gt; 
+    you can do so by running the following commands&lt;/p&gt;
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; gem &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;bundler jekyll
+   &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; jekyll new my-awesome-site
+   &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;my-awesome-site
+   &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt; bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;this would install Jekyll and build a sample jekyll site  and serve it at  http://localhost:4000
+  you can create and edit your blog posts as markdown in the folder &lt;strong&gt;_posts&lt;/strong&gt; in your website’s home directory. 
+  Here is a sample of what your website folder would look like&lt;br /&gt;
+  &lt;a href=&quot;https://github.com/Oziomajnr/Ozioma-Personal-Website/tree/master/blog&quot;&gt;Ozioma’s Blog&lt;/a&gt;, 
+  you can edit metadata to your site using the config file in the home folder of the website.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;h3 id=&quot;github&quot;&gt;Github:&lt;/h3&gt;
+    &lt;p&gt;The code for the jekyll website is hosted in a
+  &lt;a href=&quot;https://github.com/Oziomajnr/Ozioma-Personal-Website/tree/master/blog&quot;&gt;Github Repository&lt;/a&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Firebase: 
+ I used &lt;a href=&quot;https://firebase.google.com/docs/hosting&quot;&gt;firebase hosting&lt;/a&gt; for hosting the blog since it is 
+ just static content and firebase hosting is free and also gives you free SSL certificate, also deploying to 
+ firebase hosting is quite easy, for information on how to set up firebase hosting you can check out the 
+ &lt;a href=&quot;https://firebase.google.com/docs/hosting/quickstart&quot;&gt;Docs&lt;/a&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Travis-CI: 
+ I wanted easy and quick deployment of new content for the blog so I used  &lt;a href=&quot;http://travis-ci.org/&quot;&gt;Travis CI&lt;/a&gt; 
+ hooked to the Github repository. Here is my travis &lt;code class=&quot;highlighter-rouge&quot;&gt;yaml&lt;/code&gt; file&lt;/p&gt;
+
+    &lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;language&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ruby&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;rvm&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;2.4.1&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;before_script&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+   &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;cd blog&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;gem update --system&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;gem install bundler&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;bundler update --bundler&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;gem install jekyll bundler&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;JEKYLL_ENV=production bundle exec jekyll build --verbose&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;cd ..&lt;/span&gt;
+ &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ls&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;deploy&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+   &lt;span class=&quot;na&quot;&gt;skip_cleanup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;true&lt;/span&gt;
+   &lt;span class=&quot;na&quot;&gt;provider&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;firebase&lt;/span&gt;
+   &lt;span class=&quot;na&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+     &lt;span class=&quot;na&quot;&gt;secure&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;FIREBASE_CI_TOKEN&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This deployment setup handles both deploying to my business card website &lt;a href=&quot;http://oziomaogbe.com&quot;&gt;http://oziomaogbe.com&lt;/a&gt; 
+and the blog 
+&lt;a href=&quot;http://blog.oziomaogbe.com&quot;&gt;http://blog.oziomaogbe.com&lt;/a&gt; but since they are both hosted on the same Firebase 
+project their deployment process is the same, we only had to make sure the Jekyll blog is built correctly and 
+that is why we had the scripts&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;blog
+gem update &lt;span class=&quot;nt&quot;&gt;--system&lt;/span&gt;
+gem &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;bundler
+bundler update &lt;span class=&quot;nt&quot;&gt;--bundler&lt;/span&gt;
+gem &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;jekyll bundler
+&lt;span class=&quot;nv&quot;&gt;JEKYLL_ENV&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;production bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll build &lt;span class=&quot;nt&quot;&gt;--verbose&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Travis handles the firebase deployment so I did not  have to explicitly  run the firebase deployment commands, 
+I only had to supply the firebase json file 
+&lt;a href=&quot;https://github.com/Oziomajnr/Ozioma-Personal-Website/blob/master/firebase.json&quot;&gt;https://github.com/Oziomajnr/Ozioma-Personal-Website/blob/master/firebase.json&lt;/a&gt; 
+and generate a a CI token using&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;firebase login:ci
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;and then encrypt the generated token using&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;travis encrypt &lt;span class=&quot;s2&quot;&gt;&quot;GENERATED_FIREBASE_TOKEN&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--add&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;this encrypts the firebase CI key and gives you a public key that you can use in your travis yaml file since that 
+file is kind of public.&lt;/p&gt;
+
+&lt;p&gt;So that is it, next I would write about how I migrated my content from medium to my Jekyll blog.&lt;/p&gt;
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;https://media3.giphy.com/media/RJzYCmfSZt1CmiUyuU/giphy-downsized.gif&quot; alt=&quot;It's over&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Let me know in the comments below if you tried it out and also if you had any issues in the comments below.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 12 Aug 2019 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>3 Useful tips for using Google Cloud Datastore.</title>
+        <description>&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/google_data_store_pic.png&quot; alt=&quot;Event bus explanation&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Google Cloud Datastore is a managed, schema-less and highly scalable &lt;a href=&quot;https://hackernoon.com/tagged/nosql&quot;&gt;NoSql&lt;/a&gt;
+ database that is especially helpful for developers who want to worry less about scaling their database as usage grow.
+ It is built on top of Google’s Bigtable Database and it has a lot of powerful features and you might want to consider
+ it for your next project, but before you do so here are some quick tips that you should know so as to avoid some 
+ pitfalls with using this database.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;1&lt;/em&gt;&lt;/strong&gt;. &lt;strong&gt;Google Cloud Datastore is not SQL, its not even close.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;   Google Cloud Datastore is a NOSQL database but when people and documentations try to explain the concept they tend 
+to compare it with SQL e.g Entities could be compared to Tables and its properties to Columns, 
+since a lot of developers are already familiar with SQL. Also Datastore also has a powerful query engine that
+ allows you to query for data and even sort the data accordingly, this might make developers assume that 
+ they can model their data like they do in SQL. But the truth is that Datastore’s underlying implementation 
+ is quite different from SQL, here are some key differences.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;I&lt;/em&gt;. &lt;em&gt;No Auto-Increment Primary Keys&lt;/em&gt;:&lt;br /&gt;
+   Unlike SQL where you can generally have an Auto-increment Primary key that increments with each write,
+ In Google Cloud Datastore Entities are identified by a &lt;a href=&quot;https://cloud.google.com/datastore/docs/reference/data/rest/v1/Key&quot;&gt;KEY&lt;/a&gt; 
+ which is made unique with a combination of its &lt;a href=&quot;https://cloud.google.com/datastore/docs/concepts/entities#kinds_and_identifiers&quot;&gt;Kind and its Identifier&lt;/a&gt; 
+ the Identifier is either an ID that Datastore automatically generates for you or a 
+ &lt;a href=&quot;https://cloud.google.com/datastore/docs/concepts/entities#kinds_and_identifiers&quot;&gt;Key Name Property &lt;/a&gt; 
+ that you can provide as an identifier to Datastore which is a String that you are sure would be unique for each entity
+  of that kind.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: Identifiers are only unique within a kind and cannot be changed after the entity is created.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;em&gt;II&lt;/em&gt;. &lt;em&gt;No Foreign Key Constraints&lt;/em&gt;: In Datastore, you can reference other Entities using their 
+&lt;a href=&quot;https://cloud.google.com/datastore/docs/reference/data/rest/v1/Key&quot;&gt;&lt;strong&gt;Key&lt;/strong&gt;&lt;/a&gt; 
+but no data integrity checks are done when writing or deleting these Entities so you cannot ensure that they entity 
+whose key you’re referencing actually exist. You have to be careful here because this is the point where there is 
+extreme likelihood of data integrity problems.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;III&lt;/em&gt;. &lt;em&gt;Datastore Does not Enforce uniqueness&lt;/em&gt;: Apart from the Identifier mentioned in (I) above,
+ Google Cloud Datastore does not allow you to specify uniqueness for any other fields in an Entity, 
+ if you wish to ensure uniqueness you would have to implement that by yourself by performing a read at 
+ the point of writing the Entity.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2&lt;/em&gt;&lt;/strong&gt;. &lt;strong&gt;Know what to Index very early:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Google Cloud Datastore makes use of &lt;a href=&quot;https://cloud.google.com/datastore/docs/concepts/indexes&quot;&gt;Indexes&lt;/a&gt; 
+to aid querying, indexing fields in an Entity is very important to querying in datastore, in fact,
+ if you do not index a field and attempt to filter in a query with that field, you would get no result even 
+ if the query matches a result, this is because Datastore only looks up the indexes when querying, 
+ it does not allow you to do a full table scan to get results of queries like many other database does.&lt;/p&gt;
+
+&lt;p&gt;There are two types of indexing in Datastore, Basic Index and Composite index, 
+basic index is used on single property fields while Composite index is used when you intend to filter by multiple fields.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;It is important to know what fields you would like to index early because indexes could take too 
+long to build especially when you have very many entities in your database.In fact for single property 
+indexes they are not built automatically after indexing them, the index is built with each write, 
+so if you have 1 million entities of that kind and you intend to intend to index a field you would have to read each 
+of the 1 million entities and write them back for the index to be recorded, this can be very expensive. 
+Also when you try to query with composite fields that you have not indexed, you get an error even if you have
+ indexed these fields and it is not done building the indexes.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So to avoid these issues, try to think about fields you would want to use in your query and index them very early.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;3&lt;/em&gt;&lt;/strong&gt;. &lt;em&gt;How to count Entities (Sharded Counters):&lt;/em&gt; 
+Unlike SQL where you could easily use the query select &lt;code class=&quot;highlighter-rouge&quot;&gt;count(*)&lt;/code&gt; to get the number of items in a Table,
+Datastore queries do not have any such syntax, you have to keep count of your Entities by yourself using other Entities, 
+so if you have an Entity called &lt;strong&gt;User&lt;/strong&gt; and you wish to know how many users are in your database then you need to
+ have another Entity lets call it UserCount . 
+ The UserCount Entity would have an numeric field that would increase anytime a User is written to the database 
+ and decrease when a User is deleted from the database. This is fairly simple, but a problem might arise when the 
+ count needs to update frequently, lets say 20 times per second. 
+ This could lead to &lt;a href=&quot;https://cloud.google.com/appengine/articles/scaling/contention&quot;&gt;DataStore Contention Error&lt;/a&gt; 
+ which implies that each concurrent request to update the item could not be completed before their request is timeout. 
+ This problem is solved using &lt;a href=&quot;https://cloud.google.com/appengine/articles/sharding_counters&quot;&gt;&lt;strong&gt;Sharded Counter&lt;/strong&gt;&lt;/a&gt; 
+ which simply implies creating fragments of that entity (shards) and randomly picking each of those entities 
+ to update when you need to update the count, this would reduce the probability of getting the Datastore Contention error.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: The higher the number of shards, the lesser the likelihood of getting the Data Contention Error,
+ the &lt;a href=&quot;https://github.com/GoogleCloudPlatform/appengine-sharded-counters-java&quot;&gt;Google Cloud Samples&lt;/a&gt;
+  has a decent example on how to implement Sharded counters.So there you have it, while Datastore promises Scalability,
+   it has some downsides too which is especially in Data integrity and Querying and you should consider these things 
+   before using it for a project.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;If you have other tips you would like to share, you can add it in the comments below, thanks&lt;/strong&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 24 Aug 2018 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2018/08/24/3-useful-tips-for-using-google-cloud-datastore.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Communicating between components in Java Using Guava Event Bus</title>
+        <description>&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/1h9fw9-AbGIqjEskbK-Rf6A.png&quot; alt=&quot;Singleton Diagram&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;One common situation that arises when building enterprise application is &lt;a href=&quot;https://hackernoon.com/tagged/implementing&quot;&gt;implementing&lt;/a&gt;
+a chain of business processes after one process is &lt;a href=&quot;https://hackernoon.com/tagged/successful&quot;&gt;successful&lt;/a&gt;, 
+for example, if you are building a shopping website, you might want to do the following after payment for a product is successful&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Reduce the number of items available in the store after the purchase.&lt;/li&gt;
+  &lt;li&gt;Send the shop owner a receipt for the purchase.&lt;/li&gt;
+  &lt;li&gt;Send the buyer a receipt for the purchase.
+In some cases, you might want these processes to be &lt;strong&gt;atomic&lt;/strong&gt; with respect to the product purchase,
+ that is,** after product purchase occurs the number of items must decrease, revert the product purchase if there is a 
+ problem decreasing the number of available items**. You generally would want to do this in a 
+ &lt;a href=&quot;https://en.wikipedia.org/wiki/Transaction_processing&quot;&gt;&lt;strong&gt;transaction&lt;/strong&gt;&lt;/a&gt; to make the process atomic.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In some other cases, the second process might not be important enough to revert the execution of the first phase if it 
+fails, for example, you might not want the process of sending receipts to the customer or seller to affect the process 
+of payment. In such cases, you would want to decouple the components handling both processes as much as
+ possible so that they can execute their operations independently, this is where an &lt;strong&gt;Event Bus&lt;/strong&gt; would help us.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What Is An Event Bus?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;An Eventbus is a mechanism that allows different components to communicate with each other without knowing about each
+ other. A component can send an Event to the Eventbus without knowing who will pick it up or how many others will 
+ pick it up. Components can also listen to Events on an Eventbus, without knowing who sent the Events.
+ That way, components can communicate without depending on each other. Also, it is very easy to substitute a component.
+  As long as the new component understands the Events that are being sent and received, the other components 
+  will never know.
+&lt;a href=&quot;http://www.rribbit.org/eventbus.html&quot;&gt;http://www.rribbit.org/eventbus.html&lt;/a&gt;In this tutorial, we would use the 
+&lt;a href=&quot;https://github.com/google/guava/wiki/EventBusExplained&quot;&gt;&lt;strong&gt;Google Guava Event Bus&lt;/strong&gt;&lt;/a&gt; implementation to show how we can 
+decouple components in our java applications&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Note: The docs to the library has this to say about the Event Bus&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;EventBus allows publish-subscribe-style communication between components without requiring the components to
+ explicitly register with one another (and thus be aware of each other). It is designed exclusively to replace 
+ traditional Java in-process event distribution using explicit registration. It is &lt;em&gt;not&lt;/em&gt; a 
+ general-purpose publish-subscribe system, nor is it intended for interprocess communication. 
+ In our example, we would demonstrate how to use an event bus by simulating the payment process mentioned at 
+ the beginning of this article.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So, here is the components involved in our application&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/1c8D-DnP5FeYjFSv8sKUhZg.png&quot; alt=&quot;Singleton Diagram&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The first component should handle processes that is involved directly with a
+ successful payment, like reducing the number of items left in the store.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The second component handles sending receipt to the customer.&lt;/li&gt;
+  &lt;li&gt;The third component handles sending, receipt to the Seller.
+We could chain these processes together by implementing them in different methods and call them sequentially&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/1kyb5ng5AiA8PHc-5GWZbdw.png&quot; alt=&quot;Singleton Diagram&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;we could have it implemented like this&lt;/p&gt;
+
+&lt;p&gt;But the problem with this method is that the components are not properly decoupled and a when an error occurs in one process, 
+it could affect the other process. Also, if we have to add more processes to be executed after a successful payment, 
+we would have to manually go to the onPaymentRecievedMethod() and add the method call, this is not good and we would 
+address this issue using an Event Bus, the &lt;strong&gt;Google Guava Event Bus&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is how our implementation would looks like&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/1A9DhulF8SlpgQ5c-odpuKw.png&quot; alt=&quot;Singleton Diagram&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The payment component and the receipt sender components are completely unaware of each other,
+ the event bus is responsible for carrying the information from the publishers to all the subscribers.&lt;/p&gt;
+
+&lt;h4 id=&quot;how-does-guava-event-bus-work&quot;&gt;How Does Guava Event Bus work?&lt;/h4&gt;
+
+&lt;p&gt;Lets have some quick tips.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Some important concepts in the Guava Event Bus are
+i. &lt;strong&gt;The Event Bus&lt;/strong&gt;: This is the object that is delegated the responsibility of carrying the event data 
+from one component to another, you generally would want to have one instance of the event bus so that the 
+producer and the subscriber would use the same event bus, this is required for the event bus to work correctly. 
+You could use the singleton pattern to ensure that only one instance of this class is created and use an IOC container 
+to provide that instance whenever an instance of the event bus is required.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; You could have multiple instances of the Event but if you want different event bus to 
+handle different set of components, but just know that a publisher and a subscriber must use the same event bus if 
+they must communicate with each other.&lt;/p&gt;
+
+&lt;p&gt;ii. &lt;strong&gt;The Producer&lt;/strong&gt;: The producer is responsible for emitting the events, these events are then passed on to the
+ event bus and are sent to all listeners that are subscribed to that event.&lt;/p&gt;
+
+&lt;p&gt;iii. &lt;strong&gt;The Listener&lt;/strong&gt;: The listener, subscribes to an event and it is triggered when that event is posted from 
+the producer, you could have a listener method run Synchronously or Asynchronously depending on the kind of event bus you use.
+ To make the listener method run synchronously, you would use a synchronous Event Bus which is the default 
+ &lt;strong&gt;EventBus&lt;/strong&gt; class, to have it run asynchronously you would have to use the &lt;strong&gt;AsyncEventBus&lt;/strong&gt; class which is a subclass of 
+ **EventBus **and its constructor requires an
+  &lt;a href=&quot;https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html&quot;&gt;&lt;strong&gt;Executor&lt;/strong&gt;&lt;/a&gt; that would be used to 
+  execute the method on a separate thread. In our example, we would use an Asynchronous EventBus.&lt;/p&gt;
+
+&lt;p&gt;iv. &lt;strong&gt;The Event&lt;/strong&gt;: In Guava event bus, the Event is just a object that is uniquely identified using the name of the class.
+ So to create a payment successful event, we just need to create a class PaymentSuccessfulEvent.java and have an instance of that class posted when a payment is successful.&lt;/p&gt;
+
+&lt;h4 id=&quot;how-to-use-the-event-bus-library&quot;&gt;&lt;strong&gt;How to use the Event Bus Library&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;&lt;strong&gt;1. Add the Google Guava Library to your project&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You could do this using your favourite dependency management tool, lets use maven:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;com.google.guava&lt;span class=&quot;nt&quot;&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;guava&lt;span class=&quot;nt&quot;&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;version&amp;gt;&lt;/span&gt;26.0-jre&lt;span class=&quot;nt&quot;&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Create factory methods to provide our event bus instance.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;We would just use a static class member to hold the instance of the event bus and forget about the complexity of adding 
+an IOC container to this demo.&lt;/p&gt;
+
+&lt;p&gt;the EventBusFactory class has a method getEventBus() which returns a single instance of an Async event bus.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3. Create the Payment Successful Event.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Like we said earlier, the event is just a simple class and each event is identified by the name of the class.
+ So lets create a &lt;strong&gt;PaymentSuccessful&lt;/strong&gt; event.&lt;/p&gt;
+
+&lt;p&gt;so this event would be posted when a payment is successful.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4. Create Listeners for the Payment Successful Event.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In Guava Event Bus, a listener a method that is decorated with the @Subscribe annotation and it is triggered whenever
+ the Event in its argument is posted. Lets create a Payment Successful event listener&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5. Register the event listerners.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;At the point where the application is started, we have to register the Receipt sender class as an event listener,
+ telling guava event bus that it contains methods decorated with @Subscribe annotation. 
+ This is done by passing an instance of the RecieptSender class to the eventBus.register() method.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;java EventBusFactory.*getEventBus*().register(new RecieptSender());&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;6. Post the event.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;We would now post the event whenever a payment is successful.&lt;/p&gt;
+
+&lt;p&gt;This would trigger all methods that have the Payment event as their argument and also has the @Subscribe annotation.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Feels free to share you thoughts in the comments, I want to hear your experience implementing this pattern.&lt;/strong&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 13 Aug 2018 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2018/08/13/communicating-between-components-in-java-using-guava-event-bus.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2018/08/13/communicating-between-components-in-java-using-guava-event-bus.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Android, Using Navigation Drawer Across Multiple Activities: The easiest way.</title>
+        <description>&lt;p&gt;The Navigation Drawer is a very important component in an android application as it allows users to easily navigate
+ to different parts of your application without having to go through some set of Activities and fragments.
+  We often need to have our navigation drawer in many activities and it would be painful if we have to repeat 
+  the code for creating the drawer in different activities, that would also go against the &lt;strong&gt;DRY&lt;/strong&gt; principle.&lt;/p&gt;
+
+&lt;p&gt;One way of solving this problem is to create a Base Activity that would have the Navigation Drawer 
+and all other activities that needs to have the Navigation Drawer would inherit from that Activity.&lt;/p&gt;
+
+&lt;p&gt;In this tutorial I would show you an easier way of solving this problem using the library 
+&lt;a href=&quot;https://github.com/mikepenz/MaterialDrawer&quot;&gt;MATERIAL DESIGN DRAWER&lt;/a&gt; by &lt;a href=&quot;https://github.com/mikepenz&quot;&gt;Mike Penz&lt;/a&gt;. 
+The material design drawer library helps us create navigation drawer easily by calling a set of methods 
+in your activities. We would extend this to multiple activities.&lt;/p&gt;
+
+&lt;p&gt;To begin, we first need to install the Material design drawer using gradle, so in your app level build.gradle 
+file, add the following dependency excluding the android support library and sync.&lt;/p&gt;
+&lt;div class=&quot;language-groovy highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;dependencies&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'com.mikepenz:materialdrawer:5.9.5@aar'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;transitive&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;exclude&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;group:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'com.android.support'&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now we can use drawer methods to add it to an activity but to allow the drawer extend to other activities, 
+we create a Utility class for initializing the drawer and adding it to an activity.&lt;/p&gt;
+
+&lt;p&gt;So let’s create a class called DrawerUtil.java&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.Drawer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.DrawerBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.model.DividerDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.model.PrimaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.model.SecondaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.mikepenz.materialdrawer.model.interfaces.IDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DrawerUtil&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getDrawer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Activity&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Toolbar&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toolbar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;//if you want to update the items at a later time it is recommended to keep it in a variable&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerEmptyItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;drawerEmptyItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withEnabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemManagePlayers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;manage_player&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_people_outline_black_48px&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemManagePlayersTournaments&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PrimaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;tournament&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;tournamenticon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+
+        &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemSettings&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_settings_black_48px&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemAbout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;about&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_info_black_24px&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemHelp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;help&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_help_black_24px&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItemDonate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SecondaryDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;donate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withIcon&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;drawable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ic_payment_black_24px&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;//create the drawer and remember the `Drawer` result object&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;Drawer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DrawerBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;activity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withToolbar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toolbar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withActionBarDrawerToggle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withActionBarDrawerToggleAnimated&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withCloseOnClick&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withSelectedItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;addDrawerItems&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerEmptyItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drawerEmptyItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drawerEmptyItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemManagePlayers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemManagePlayersTournaments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;DividerDrawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemAbout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemSettings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemHelp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                        &lt;span class=&quot;n&quot;&gt;drawerItemDonate&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;withOnDrawerItemClickListener&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Drawer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;OnDrawerItemClickListener&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+                    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onItemClick&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;View&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IDrawerItem&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;drawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;drawerItem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getIdentifier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;activity&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                            &lt;span class=&quot;c1&quot;&gt;// load tournament screen&lt;/span&gt;
+                            &lt;span class=&quot;nc&quot;&gt;Intent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;intent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Intent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;activity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                            &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;startActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;intent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+                        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+                    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;the drawer util class has one static method getDrawer, this method takes in two arguments, 
+the first one is the activity that you want to create the drawer for and the second one is the tool bar of 
+that activity, so that the toggle icon or the home icon can be appropriately displayed.&lt;/p&gt;
+
+&lt;p&gt;The drawer is created using a builder pattern, initializing necessary parameters, the primary and 
+secondary drawer items are initialized with their text, icons and identifiers.&lt;/p&gt;
+
+&lt;p&gt;When the drawer items are clicked, the onItemClicked listener is called and the items are identified based on
+their identifiers specified when creating them, the code sample tracks when the drawer item that has the 
+identifier 2, and then starts the main activity if it is not already open.&lt;/p&gt;
+
+&lt;p&gt;Next we have to add this drawer to any activity that requires it, all the have to do is to call the static
+ method getDrawer() from the onCreate method and pass in the activity and tool bar as arguments,
+  just easy like that and the drawer would be added to our activity. here is a sample&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;nd&quot;&gt;@BindView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toolbar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Toolbar&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toolBar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Bundle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;setContentView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;layout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;activity_main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;ButterKnife&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;n&quot;&gt;toolBar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setTitle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getResources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;tournament&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;setSupportActionBar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toolBar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;nc&quot;&gt;DrawerUtil&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getDrawer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toolBar&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note: The code sample uses Butterknife for view binding.&lt;/p&gt;
+
+&lt;p&gt;So from the code sample above, w have added the Navigation drawer to our Main activity by simply calling&lt;/p&gt;
+
+&lt;p&gt;DrawerUtil.getDrawer(this,toolBar);&lt;/p&gt;
+
+&lt;p&gt;You can check out the &lt;a href=&quot;https://github.com/mikepenz/MaterialDrawer&quot;&gt;MATERIAL DESIGN DRAWER&lt;/a&gt; 
+library for examples on how to use the drawer library for other features.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 24 Oct 2017 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2017/10/24/android-using-navigation-drawer-across-multiple-activities-the-easiest-way.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2017/10/24/android-using-navigation-drawer-across-multiple-activities-the-easiest-way.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Android: Handling Checkbox state in Recycler Views.</title>
+        <description>&lt;p&gt;In Android development, developers usually have to handle some sort of selection from a list of items. 
+When these items could potentially become many, then a Recycler view is usually a good choice for holding these items 
+because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, 
+views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views 
+this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)&lt;/p&gt;
+
+&lt;p&gt;The common way a developer can go about setting the state of the view is set it to checked when the view is clicked 
+then uncheck it when the view is clicked again by checking the previous state of the view.&lt;/p&gt;
+
+&lt;p&gt;i.e&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mCheckedView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;mCheckedView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;CheckedView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This logic might appear correct but it is not, when you scroll down the Recycler view such that the current view is no 
+longer visible, it usually reuses the state the view to set the state of some other view down the list, this can also 
+happens when the keyboard input covers the view. You get a similar behavior to this animation.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1gNSazrkWiBdW64CbRw7ljA.gif&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So how do we handle this problem?&lt;/p&gt;
+
+&lt;p&gt;We would consider 2 options&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Block the view holder from recycling it’s views. (DON’T DO THIS)&lt;/li&gt;
+  &lt;li&gt;Use your model to hold the state of the items.&lt;/li&gt;
+  &lt;li&gt;Use an array to hold the state of the items.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;1&lt;/em&gt;&lt;/strong&gt;. Block the View Holder from recycling it’s views.&lt;/p&gt;
+
+&lt;p&gt;You can achieve this by setting the isRecycleable property of the Recycler view view holder to false, 
+this would prevent the Recycler view from recycling it’s content. In the constructor of the view holder add the following line.&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;ViewHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;View&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setIsRecyclable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This is a bad idea because the reason why you are using the Recycler view in the first place is to take advantage of 
+its Recyclable property. So this is an option, but it is not recommended. It solves the problem of using the wrong 
+state for the wrong views but when the views goes out of visibility they return to their default state.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1gNSazrkWiBdW64CbRw7ljA.gif&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;behavior after method 1&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;So we need a sort of memory to hold the current state of each item in the view.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;2&lt;/em&gt;&lt;/strong&gt;. Use your model to hold the current state of the view.&lt;/p&gt;
+
+&lt;p&gt;You could have a Boolean field in your model for the Recycler View to hold the state of your current item.So in your Model class you can have&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;checked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;isChecked&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;checked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;then when in the click even handler of the view you can toggle this property of the item like this:&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;  
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onClick&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;View&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;c1&quot;&gt;// toggle the checked view based on the checked field in the model  &lt;/span&gt;
+ &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;adapterPosition&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getAdapterPosition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;adapterPosition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;adapterPosition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;adapterPosition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;then we have to make sure the correct state is displayed when the view is bound like this&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;  
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onBindViewHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ViewHolder&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ViewHolder&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RecyclerView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ViewHolder&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;View&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;OnClickListener&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  
+ &lt;span class=&quot;nc&quot;&gt;CheckedTextView&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;  
+  
+ &lt;span class=&quot;nc&quot;&gt;ViewHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;View&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;CheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;findViewById&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;checked_text_view&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;itemView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setOnClickListener&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+  
+ &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setText&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;valueOf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()));&lt;/span&gt;  
+ 
+ &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;mCheckedTextView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setChecked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;…this correctly displays the correct state for the correct view.&lt;/p&gt;
+
+&lt;p&gt;The disadvantage of this method is that the model is now aware of the view and this might not be a very good software design, so the last method would make sure the state of the views are stored in the adapter.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3&lt;/strong&gt;. Use an array to hold the state of the items.&lt;/p&gt;
+
+&lt;p&gt;To do this, in the adapter we use a Map or a &lt;a href=&quot;https://developer.android.com/reference/android/util/SparseBooleanArray.html&quot;&gt;SparseBooleanArray&lt;/a&gt; (which is similar to a map but is a key value pair of int and boolean)to store the state of all the items in our list of items and then use the keys and values to compare when toggling the checked state.&lt;/p&gt;
+
+&lt;p&gt;In the Adapter create a SparseBooleanArray&lt;/p&gt;
+
+&lt;p&gt;declare a spare boolean array to hold the state of the itemsthen in the item click handler onClick() use the state of the items in the itemStateArray to check before toggling, here is an example&lt;/p&gt;
+
+&lt;p&gt;also use the sparse boolean array to set the checked state when the view is bound&lt;/p&gt;
+
+&lt;p&gt;I prefer using this method since it does everything in the Adapter and does not interfere with the model.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1ytOlUmus17Un5FUytrSoyA.gif&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;behavior of the views after method 2 and 3&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;from the animation above, notice how the state of the check boxes are retained even after the views are recycled.&lt;/p&gt;
+
+&lt;p&gt;I have created a github repo with the source code for this tutorial&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array&quot; title=&quot;https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array&quot;&gt;Oziomajnr/RecyclerViewCheckBoxExample2  RecyclerViewCheckBoxExample2&lt;/a&gt;&lt;a href=&quot;https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;it has 3 branches each demonstrating the 3 methods listed in this article, 
+feel free to submit contributions in the repo if you know other methods for solving this problem.&lt;/p&gt;
+
+&lt;p&gt;Please feel free to comment if you have problem implementing this solution.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 18 Oct 2017 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>ANDROID: Browsing Realm Database On Windows.</title>
+        <description>&lt;p&gt;I recently started using &lt;a href=&quot;http://realm.io/&quot;&gt;Realm&lt;/a&gt; as my mobile database and it has proved to be 
+a very good solution as it is easy to implement and also it is live, 
+so updating the User Interface to reflect changes in the underlying database is very easy.&lt;/p&gt;
+
+&lt;p&gt;But as with every other database, you often need to view its content without using the view
+from your application directly, &lt;a href=&quot;http://realm.io/&quot;&gt;Realm&lt;/a&gt; provides a solution for that through 
+the&lt;a href=&quot;https://academy.realm.io/posts/realm-browser-tutorial/&quot;&gt; Realm Browser&lt;/a&gt;.
+With the realm browser you can view and even edit the data from your realm database. 
+The only problem is that realm browser is only available for MAC and UBUNTU operating systems
+but unfortunately its not available for WINDOWS.&lt;/p&gt;
+
+&lt;p&gt;So how would windows users monitor the content of their Realm database? That would be covered in this brief tutorial.&lt;/p&gt;
+
+&lt;p&gt;To achieve this we would use a tool called &lt;a href=&quot;https://facebook.github.io/stetho/&quot;&gt;Stetho,&lt;/a&gt; developed by Facebook, 
+Stetho give developers access to the Dev tools feature of the Chrome browser, so we would view the content 
+of our realm database using Chrome browser. But another problem is that Realm db is not supported in Stetho 
+by default, so we would make use of another library, &lt;a href=&quot;https://github.com/uPhyca/stetho-realm&quot;&gt;stetho realm&lt;/a&gt; 
+this would provide us the ability to view our realm db from the chrome dev tools using stetho.&lt;/p&gt;
+
+&lt;p&gt;We would complete the tutorials in the following steps&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Install dependencies.&lt;/li&gt;
+  &lt;li&gt;Ensure Stetho is only used from debug build only(We dont want to mess up our release apk).&lt;/li&gt;
+  &lt;li&gt;Use Chrome browser Dev tools to view our realm database.
+Pretty straight forward.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; This article assumes you have an app that utilizes realm db already,
+ if you don’t then you can use one of
+  the &lt;a href=&quot;https://github.com/realm/realm-java/tree/master/examples&quot;&gt;sample application&lt;/a&gt;’s from the realm db repository.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. Install Dependencies.&lt;/strong&gt;
+The dependencies required are shown below&lt;/p&gt;
+
+&lt;p&gt;in our Project level build.gradle file we add the the following maven url&lt;/p&gt;
+
+&lt;div class=&quot;language-groovy highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;allprojects&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;repositories&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;jcenter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;maven&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;nl&quot;&gt;url:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;then in our app level build.gradle file we add the following dependencies&lt;/p&gt;
+
+&lt;div class=&quot;language-groovy highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'com.facebook.stetho:stetho:1.5.0'&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'com.uphyca:stetho_realm:2.1.0'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Ensure Stetho is only used from debug build only&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;It is advised that Stetho be used only for debug builds only as you do not want it to be mumbled in your 
+release project since you might not want users to monitor your database, to achieve this we configure stetho 
+in the Application class that would only be used for debug build using , so we create a separate source set 
+from the app/src/main folder, call this new folder **debug **app/src/debug where we would house our application 
+class that would be used instead of our usual application class where we initialized realm.&lt;/p&gt;
+
+&lt;p&gt;our project structure would look like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/10y807QS-e7eUulKYj_jUUA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;notice the debug folder, this folder would contain another Application 
+class and and Android manifest file (all the android manifest files would be merged into one by gradle 
+during build ).&lt;/p&gt;
+
+&lt;p&gt;In our newly created debug directory we add the new Application class we would call it DebugApplication.java&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// this package should be the same with the main application class  &lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;example&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;myapp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;android.app.Application&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.facebook.stetho.Stetho&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.uphyca.stetho_realm.RealmInspectorModulesProvider&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DebugApplication&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+  
+ &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;  
+ &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;  
+ &lt;span class=&quot;nc&quot;&gt;Realm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+ 
+ &lt;span class=&quot;nc&quot;&gt;Stetho&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  
+ &lt;span class=&quot;nc&quot;&gt;Stetho&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;newInitializerBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;enableDumpapp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Stetho&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;defaultDumperPluginsProvider&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;enableWebKitInspector&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RealmInspectorModulesProvider&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;builder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;  
+ &lt;span class=&quot;o&quot;&gt;}...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;this Application class must belong to the same package as the main Application class, 
+so that it can replace the main Application class correctly in debug mode. 
+All this class does is to initialize Realm and Stetho.&lt;/p&gt;
+
+&lt;p&gt;Then we add Android manifest xml file to the build folder&lt;/p&gt;
+
+&lt;p&gt;this should be the content of the file:&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;manifest&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;package=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;com.example.myapp&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;xmlns:android=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://schemas.android.com/apk/res/android&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;xmlns:tools=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://schemas.android.com/tools&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;  
+  
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;application&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;tools:replace=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;android:name&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.DebugApplication&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/manifest&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;With just these few settings, we are good to go! we can use the Chrome Dev tools to monitor our application 
+and view our Realm database.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Use Chrome browser Dev tools to view our realm database.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Before we use the chrome dev tools we have to sign into google chrome with a google account. 
+We can do that by clicking on options → settings → sign in. To View our realm database,
+ first we build and launch the application from android studio using Usb debugging, 
+ then when the application is running we can go to the url:
+ &lt;em&gt;chrome://inspect/#devices&lt;/em&gt; access the current connected device.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://cdn-images-1.medium.com/max/800/1*-Ny0cWSGybrEDEgbjceQpw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Chrome Dev Tools(inspect devices)from the screen shot you can see the device currently connected and the running apps that have stetho installed.&lt;/p&gt;
+
+&lt;p&gt;To view our realm db data, click on &lt;strong&gt;inspect&lt;/strong&gt; from the app section. This would open a new chrome instance shown below:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/11veYQlW5ZVomGMiGp29VqQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Navigate to the resources tab, then from the side bar, open the &lt;strong&gt;Web Sql&lt;/strong&gt; node, 
+then click on the name of your realm database and you can easily browse your realm object from there!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1E-270s1JDrm7VlvpQNanDQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you found this article helpful please support it with as many claps as you can, I would also welcome comments.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 08 Oct 2017 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2017/10/08/android-browsing-realm-database-on-windows.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Your singleton might not be “Single”.</title>
+        <description>&lt;p align=&quot;center&quot;&gt;
+ &lt;img src=&quot;/img/0CAvq1Jb3ynFuSwnG.png&quot; alt=&quot;Singleton Diagram&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Source: &lt;a href=&quot;https://dzone.com/articles/java-singletons-using-enum&quot;&gt;https://dzone.com/articles/java-singletons-using-enum&lt;/a&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Singleton_pattern&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Singleton is a very popular design pattern as it is proven to have some advantages compared to global variables, 
+ the &lt;a href=&quot;https://en.wikipedia.org/wiki/Design_Patterns&quot;&gt;&lt;strong&gt;Gang of four&lt;/strong&gt;&lt;/a&gt; 
+ book listed the following benefits of using singleton:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Controlled access to sole instance.&lt;/li&gt;
+  &lt;li&gt;Reduced name space.&lt;/li&gt;
+  &lt;li&gt;Permits refinement of operations and representation.&lt;/li&gt;
+  &lt;li&gt;Permits a variable number of instances.&lt;/li&gt;
+  &lt;li&gt;More flexible than class operations.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Web application developers often find it useful as a form of caching mechanism using it to hold some data that
+ needs to be accessed so often that that fetching it from the database might be a performance overhead, 
+ example of that might be &lt;strong&gt;access token&lt;/strong&gt; for API authorization.&lt;/p&gt;
+
+&lt;p&gt;But Singleton have often been described as an software
+ &lt;a href=&quot;https://en.wikipedia.org/wiki/Anti-pattern#Software_design&quot;&gt;&lt;strong&gt;Anti Pattern&lt;/strong&gt;&lt;/a&gt; 
+ mainly because of of its unpredictable nature. The primary properties of a singleton is&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;There must be exactly one instance of a class.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The single instance must be accessible to clients from a well-known access point.
+The implication of the first property is that a singleton must class must be properly implemented such that 
+multiple instances of that class should not exist, this is usually not the case as there are many reasons 
+why multiple instances of your singleton class might exist, here are some reasons:&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Multi threading: If your singleton class is not properly implemented with lock and synchronization then when 
+it is accessed from multiple threads different instances would be created.&lt;/li&gt;
+  &lt;li&gt;Class loaders: If your Singleton is loaded by different class loaders then the it would have multiple instances.&lt;/li&gt;
+  &lt;li&gt;Shared Server: If your application is running on a shared server then different instances of your application can 
+be spurned to serve your requests.
+The article the article &lt;a href=&quot;https://www.javaworld.com/article/2073352/core-java/simply-singleton.html&quot;&gt;Simply Singleton&lt;/a&gt; 
+describes how you can overcome 1 and 2 above but those methods have their own implications, problem 3 is the major 
+reason why I would not recommend using Singleton to hold data that is important to the business logic of your application.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Recently I was working on a project where the authorization token to access the APIs for different user was stored 
+in a singleton class like this&lt;/p&gt;
+
+&lt;p&gt;the ConcurrentHashMap is used to store the user token information and then since it is assumed that there is just
+ one instance of this class the hashmap would always give the correct data for authorization.&lt;/p&gt;
+
+&lt;p&gt;The bug in this code is not obvious when a single instance of your application is running (this was our case as 
+we had configured our Google App Engine application to use just one instance in our test environment since it
+was running in the flexible environment where Google does not automatically manage the instance up and down time)
+but after we allowed multiple instance of our application to run at the same time then we had multiple instances
+of our singleton class so while the access token might be set in INSTANCE1 the instance serving our request might 
+be INSTANCE2 and then the client would get the error that the token is not found on the server. 
+In some cloud framework like Google App Engine standard environment, when your application is 
+not serving request, its instances could be shut down to dynamically 
+to save cost so when your singleton class is re-instantiated then all the data would be gone.&lt;/p&gt;
+
+&lt;p&gt;If you have data that has to be accessed often you could use a cache system like 
+&lt;a href=&quot;https://redislabs.com/lp/memcached-java/&quot;&gt;Redis Lab&lt;/a&gt; to cache the data. 
+The google app engine standard environment also has its own 
+&lt;a href=&quot;https://cloud.google.com/appengine/docs/standard/python/memcache/&quot;&gt;Memcache&lt;/a&gt; for use cases like this.&lt;/p&gt;
+
+&lt;p&gt;So if you are not absolutely sure that your singleton would have one and only one instance then you should &lt;strong&gt;not&lt;/strong&gt; use
+ it to handle data that has to do with the business logic of your application.&lt;/p&gt;
+
+&lt;p&gt;’&lt;/p&gt;
+</description>
+        <pubDate>Wed, 04 Oct 2017 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2017/10/04/your-singleton-might-not-be-single.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2017/10/04/your-singleton-might-not-be-single.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Consuming REST API in Xamarin.Android using REFIT</title>
+        <description>&lt;p&gt;While developing an android application using java, I had to get data from an API endpoint and I discovered a 
+library that made the job very easy for me. That library is &lt;strong&gt;RETROFIT&lt;/strong&gt;, it allows you define your api endpoints as 
+interface and then you can call the methods you defined conveniently and retrofit would provide an implementation of 
+the interface you declared through dependency injection. Thus you do not have to worry about loading the data from the
+ endpoints and handling asynchronous tasks. I wondered if I could do the same with Xamarin.android so I searched if 
+ retrofit has an implementation for xamarin.android, they didn’t but I found an alternative library that takes a 
+ similar approach to solving the problem of making api calls and that library is &lt;strong&gt;REFIT&lt;/strong&gt;(the name tells its all).&lt;/p&gt;
+
+&lt;p&gt;In this tutorial we would learn how to make api calls using refit, we would be getting a list of developers in a
+ location from github, I have decided to list developers in Lagos, Nigeria where I live, you can decide to add your 
+ own city! The result of our search would be displayed on a List View.&lt;/p&gt;
+
+&lt;p&gt;Refit would help us get the JSON response from the endpoint but to convert or deserialize the JSON response to a 
+C# object, we would use &lt;strong&gt;JSON.NET&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We would follow the following steps to complete this tutorial&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Start a new &lt;strong&gt;Xamarin.Android&lt;/strong&gt; project using visual studio(I am using visual studio 2017 but the procedure would 
+work for any version of visual studio)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Add reference to the refit library by getting it from nugget. Refit comes with &lt;strong&gt;Json.net&lt;/strong&gt; so we would not have 
+to install it separately.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Define the response model.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Define the user model(The user model represents a developer).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Define the api interface using refit.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Design the user interface.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Define refit Serialization settings(these settings are global and have to be set once throughout the application).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Make calls to the github api to get the list of developers.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Display the list of developers in a list view.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Lets get started.&lt;/p&gt;
+
+&lt;h3 id=&quot;1-start-a-new-xamarinandroid-project&quot;&gt;1. Start a new Xamarin.android Project&lt;/h3&gt;
+
+&lt;p&gt;From visual studio start a new Xamarin.Android project, select a blank project template.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://cdn-images-1.medium.com/max/800/1*d_j8dEoKeEbMPuyk_eXoVQ.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Start a new Xamarin.Android Project&lt;/p&gt;
+
+&lt;h3 id=&quot;2-add-reference-to-the-refit-packages-from-nugget&quot;&gt;2. Add reference to the REFIT Packages from Nugget&lt;/h3&gt;
+
+&lt;p&gt;From the solution explorer, right click on reference then from the menu click on manage nugget packages, 
+this would open up the nugget package manager window, then select the browse tab and search for &lt;strong&gt;refit&lt;/strong&gt;.
+From the search result install the refit library by Paul Betts to the current project.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1OIPX0ljPlwf6mJBPab4hug.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1tcpd5IC1BClJwma2xKbUxA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Installing this package would install both Refit dependency and other dependencies we would need to deserialize the JSON.
+ So we are all set with what we need to build the app. Then we need to define the model of our response and user.&lt;/p&gt;
+
+&lt;h3 id=&quot;3-define-the-response-model&quot;&gt;3. Define the Response model&lt;/h3&gt;
+
+&lt;p&gt;We need a C# class to model our response we would be getting from the github api, but first of all let’s see what 
+the response looks like in JSON. The URL that I need to list github developers in Lagos is&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://api.github.com/search/users?q=location:lagos&quot;&gt;https://api.github.com/search/users?q=location:lagos&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;so that would give us our result in JSON, then we can use it to know what our response model would look like.
+ I would make the request using postman, but you can use your web browser&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1JjpFxbuht7DRonestTXRfw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the structure of the JSON response we can see that it contains the following&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;The total number of result (total_count).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;A status to show if the result is complete or not(incomplete_result).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;A JSON array (items) containing the result object ( this is what we are interested in) .&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The result is paginated that means we can only get 30 items per request, to get more items, we would have to pass 
+the page number as part of the request, but this 30 result would be enough to demonstrate our example.&lt;/p&gt;
+
+&lt;p&gt;So let’s model our response object.&lt;/p&gt;
+
+&lt;p&gt;From the solution Explorer, right click on the project and create a new folder called &lt;strong&gt;Model&lt;/strong&gt;, this folder would 
+contain our model for the response and the user.&lt;/p&gt;
+
+&lt;p&gt;Right click on the newly created Model folder and add a new class called &lt;strong&gt;ApiResponse&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The code for the ApiResponse.cs class is shown below:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System.Collections.Generic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApiResponse&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;total_count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;totalCount&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;incomplete_results&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;incompleteResults&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;items&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;totalCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;   
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The attribute &lt;code class=&quot;highlighter-rouge&quot;&gt;JsonProperty(PropertyName = &quot;foo_bar&quot;)&lt;/code&gt;
+is used to define the JSON name of the property that would be used to set the C# properties,
+this is used by Json.Net to deserialize the Json into a C# object. 
+We can see that the JSON property items which is a JSON array from the response we got from 
+the postman request would be automatically converted to a list of User 
+(we have not defined user yet) again this is done by &lt;strong&gt;Json.net&lt;/strong&gt; .&lt;/p&gt;
+
+&lt;p&gt;So our ApiResponse.cs class is ready but it contains a list of User but what is a user, 
+lets define a User.&lt;/p&gt;
+
+&lt;h3 id=&quot;4-define-the-user-model&quot;&gt;4. Define the User model&lt;/h3&gt;
+
+&lt;p&gt;To define the User model, right click on the Model folder and add a new Class called &lt;strong&gt;User.cs.&lt;/strong&gt; 
+To define the content of the user class we have to know which property of the user we need, 
+so we go to the Json response and check the item node, since each item represents a User. 
+We only need the login property since that is the username of the user and that is what we 
+would display on the list view. So we define our user class as follows:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;login&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;  
+   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The user class contains the login property and that would be used to populate the “username”
+ C# property. We have also Overridden the ToString() method to return the user name so 
+ that it would be easily displayed on the form.&lt;/p&gt;
+
+&lt;p&gt;So we are done with the modelling of the Response and the user, what we do next is 
+that we define the API Interface.&lt;/p&gt;
+
+&lt;h3 id=&quot;5-define-the-api-interface&quot;&gt;5. Define the API Interface&lt;/h3&gt;
+
+&lt;p&gt;To use Refit, we define an interface that would hold signature of our endpoint methods
+ and we rely on Refit to provide implementation of the interface using the parameters we provide.&lt;/p&gt;
+
+&lt;p&gt;To define the API interface, create a new folder called **Interface, **right click on 
+the folder and add a new item, select interface and name it **IGitHubApi.cs. **The content 
+of the API interface is shown below&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System.Threading.Tasks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Refit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Interface&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;User-Agent: :request:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IGitHubApi&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/search/users?q=location:lagos&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;First of all, we declared a Header User-Agent: :request&lt;/p&gt;
+
+&lt;p&gt;This tells the GitHub API that we are making a request.&lt;/p&gt;
+
+&lt;p&gt;Then we define the signature of the method we would use to get result from our API&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/search/users?q=location:lagos&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The Get attribute shows that we are making a get request to the endpoint (/search/users”) 
+ with the query parameter (“q=location:lagos”)&lt;/p&gt;
+
+&lt;p&gt;But how does Refit know the base URL to append these endpoints and parameters to? 
+We would come to that (Step 7).&lt;/p&gt;
+
+&lt;p&gt;The next piece of work would be done in our MainActivity class but before then 
+lets design our user interface.&lt;/p&gt;
+
+&lt;h3 id=&quot;6-design-the-user-interface&quot;&gt;6. Design the User Interface&lt;/h3&gt;
+
+&lt;p&gt;Our user interface would be very simple, it would contain just a &lt;strong&gt;Button&lt;/strong&gt; 
+and &lt;strong&gt;a List View&lt;/strong&gt;, the button would be used to start the process of getting the
+ list of users and the list view would display this list of users.&lt;/p&gt;
+
+&lt;p&gt;To design the user interface open main.xml and add the following source code&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;?&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xml&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0&quot;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;encoding&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;utf-8&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;LinearLayout&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xmlns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://schemas.android.com/apk/res/android&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;orientation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Button&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;wrap_content&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;List Users&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;@+id/bt_list_users&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ListView&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;layout_height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;@+id/listview_users&quot;&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;background&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;#000000&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;/&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;LinearLayout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This is how the UI should look in the main layout&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1lrDZ9l7KaK8BmllTubZ8ew.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So now that the User Interface is set up lets go to 
+the main part of the program that would start off the API call process.&lt;/p&gt;
+
+&lt;p&gt;First of all, let’s declare the global Refit settings.&lt;/p&gt;
+
+&lt;h3 id=&quot;7-define-refit-and-jsonnet-settings&quot;&gt;7. Define Refit and Json.net Settings&lt;/h3&gt;
+
+&lt;p&gt;Before we start calling the refit API, let’s set up the basic settings that would get 
+Refit to work properly. We only need to define these settings once and they would serve us
+throughout the application. We could keep these settings in a Utility class and make a 
+single call to initialize them but we would keep this example simple and define it in the 
+Main Activity’s OnCreate() method, so that when the activity is created then this settings 
+is initialised. The first thing we have to do is to define the JSON conversion settings and 
+we can do that by adding the following code snippet to the onCreate() method of the MainActivity&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// declare the global settings&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;JsonConvert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DefaultSettings&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=()=&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;JsonSerializerSettings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;ContractResolver&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;CamelCasePropertyNamesContractResolver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;Converters&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;StringEnumConverter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;And add the following reference for the code to function properly&lt;/p&gt;
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json.Serialization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json.Converters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Then we define our global variables in the MainActivity as follows:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Activity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Label&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ConnecingToApiExample&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MainLauncher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Icon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;@drawable/icon&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainActivity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Activity&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;IGitHubApi&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;();&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;();&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;Button&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;IListAdapter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;ListView&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   
+ &lt;span class=&quot;k&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;OnCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bundle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+ 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;…Then lets tell Refit to give us an Implementation of the IGithubApi interface so that we can use it to make calls 
+ to the API, we do that by assigning that implementation to the variable &lt;strong&gt;gitHubApi&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;In the OnCreate() method, let’s get an implementation of our interface and assigned it to the gitHubApi variable like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;gitHubApi = RestService.For&amp;lt;IGitHubApi&amp;gt;(“https://api.github.com&quot;);&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see this is where you tell Refit about the base URL that we would append the parameters that we declared in &lt;strong&gt;step 5&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Next let’s get reference to our user interface elements:&lt;/p&gt;
+
+&lt;p&gt;First we get the reference to the main.xml, then to the button and then the ListView using the snippet below:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;k&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;OnCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;nf&quot;&gt;SetContentView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FindViewById&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bt_list_users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FindViewById&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ListView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;listview_users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Click&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Cake_lyf_butto_Click&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;8-make-the-api-call&quot;&gt;8. Make the API Call&lt;/h3&gt;
+
+&lt;p&gt;Let’s create a method that would make the API call and fill in the List of Users with the result, then convert 
+the result to string and use the string to populate the list of user names. Then use that list of user names to populate
+ the list view in the UI. The method that would do that is given below:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getUsers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   
+ &lt;span class=&quot;k&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SimpleListItem1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Adapter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;n&quot;&gt;Toast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;MakeText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StackTrace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ToastLength&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Long&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Show&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This line&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;is responsible for making the API call, since the call to the API returns a &lt;strong&gt;Task&lt;/strong&gt; of type &lt;strong&gt;ApiResponse&lt;/strong&gt;,
+ to get the object we have to &lt;strong&gt;await&lt;/strong&gt; the &lt;strong&gt;Task&lt;/strong&gt; and thus the method has to be an &lt;strong&gt;async&lt;/strong&gt; method as you 
+ can see from the method signature.&lt;/p&gt;
+
+&lt;p&gt;This method is called when the button is clicked so we just call it in the button clicked event handler of the button as shown below:&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Cake_lyf_butto_Click&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EventArgs&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;  
+   &lt;span class=&quot;nf&quot;&gt;getUsers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After you run the application and the button is clicked, this is the result.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1_jLM8L5gWlMZyMBtfN4TOA.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;Refit really makes making API calls easy and properly structured, you can explore more about the library by checking 
+out their GitHub repo &lt;a href=&quot;https://github.com/paulcbetts/refit&quot;&gt;https://github.com/paulcbetts/refit&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The complete source code form the different files are shown below in case you do understand the different snippets&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;MainActivity.cs&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Android.App&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Android.OS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Android.Widget&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Refit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Interface&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System.Collections.Generic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Android.Util&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json.Serialization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json.Converters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Activity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Label&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;ConnecingToApiExample&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MainLauncher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Icon&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;@drawable/icon&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainActivity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Activity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;IGitHubApi&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;();&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;();&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;Button&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;IListAdapter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;ListView&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   
+ &lt;span class=&quot;k&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;OnCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bundle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;OnCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+    &lt;span class=&quot;nf&quot;&gt;SetContentView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FindViewById&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bt_list_users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FindViewById&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ListView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;listview_users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;cake_lyf_button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Click&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Cake_lyf_butto_Click&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;JsonConvert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DefaultSettings&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=()=&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;JsonSerializerSettings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;ContractResolver&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;CamelCasePropertyNamesContractResolver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;  
+     &lt;span class=&quot;n&quot;&gt;Converters&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;StringEnumConverter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RestService&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;For&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IGitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;https://api.github.com&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;Log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Ozioma See&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Cake_lyf_butto_Click&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EventArgs&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;nf&quot;&gt;getUsers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;   
+  &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getUsers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gitHubApi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;    
+ &lt;span class=&quot;k&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Android&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SimpleListItem1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;  
+ &lt;span class=&quot;n&quot;&gt;listView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Adapter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ListAdapter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;  
+    &lt;span class=&quot;n&quot;&gt;Toast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;MakeText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StackTrace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ToastLength&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Long&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Show&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;2. Main.axml&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;LinearLayout&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns:android=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://schemas.android.com/apk/res/android&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:orientation=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_width=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_height=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;  
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;Button&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_width=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_height=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;wrap_content&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:text=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;List Users&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;@+id/bt_list_users&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;  
+ &lt;span class=&quot;nt&quot;&gt;&amp;lt;ListView&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_width=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:layout_height=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;match_parent&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;@+id/listview_users&quot;&lt;/span&gt;  
+ &lt;span class=&quot;na&quot;&gt;android:background=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;#000000&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;  
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/LinearLayout&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;3. ApiResponse.cs&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System.Collections.Generic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+ &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApiResponse&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;total_count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;totalCount&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+   &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;incomplete_results&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+   &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;incompleteResults&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+   &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;items&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+   &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+  
+   &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;  
+   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;totalCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;4. User.cs&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Newtonsoft.Json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+   
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+ &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;JsonProperty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PropertyName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;login&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userName&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;  
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;}&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;5. IGitHubApi.cs&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-cs highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;System.Threading.Tasks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Refit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;  
+  
+&lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ConnecingToApiExample.Interface&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;User-Agent: :request:&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+  &lt;span class=&quot;k&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IGitHubApi&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+   &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/search/users?q=location:lagos&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;  
+   &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ApiResponse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I have also added the source code of this tutorial in my git repository here:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/Oziomajnr/Xamarin-Refit-Api-Connection/tree/master/ConnecingToApiExample&quot;&gt;&lt;strong&gt;Oziomajnr/Xamarin-Refit-Api-Connection&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 25 Sep 2017 00:00:00 +0000</pubDate>
+        <link>https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html</link>
+        <guid isPermaLink="true">https://blog.oziomaogbe.com/2017/09/25/consuming-rest-api-in-xamarin-android-using-refit.html</guid>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

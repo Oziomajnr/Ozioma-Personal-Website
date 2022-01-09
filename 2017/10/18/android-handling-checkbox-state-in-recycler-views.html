@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Android: Handling Checkbox state in Recycler Views. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Android: Handling Checkbox state in Recycler Views." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)" />
+<meta property="og:description" content="In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)" />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-10-18T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Android: Handling Checkbox state in Recycler Views.","dateModified":"2017-10-18T00:00:00+00:00","description":"In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)","datePublished":"2017-10-18T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://blog.oziomaogbe.com/feed.xml" title="Ozioma Ogbe" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-145161693-1"></script>
+<script>
+  window['ga-disable-UA-145161693-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145161693-1');
+</script>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Android: Handling Checkbox state in Recycler Views. | Ozioma Ogbe</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Android: Handling Checkbox state in Recycler Views." />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)" />
+<meta property="og:description" content="In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)" />
+<link rel="canonical" href="https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html" />
+<meta property="og:url" content="https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html" />
+<meta property="og:site_name" content="Ozioma Ogbe" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-10-18T00:00:00+00:00" />
+<script type="application/ld+json">
+{"headline":"Android: Handling Checkbox state in Recycler Views.","dateModified":"2017-10-18T00:00:00+00:00","description":"In Android development, developers usually have to handle some sort of selection from a list of items. When these items could potentially become many, then a Recycler view is usually a good choice for holding these items because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)","datePublished":"2017-10-18T00:00:00+00:00","url":"https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Ozioma Ogbe</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/projects.html">Projects</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Android: Handling Checkbox state in Recycler Views.</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2017-10-18T00:00:00+00:00" itemprop="datePublished">Oct 18, 2017
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In Android development, developers usually have to handle some sort of selection from a list of items. 
+When these items could potentially become many, then a Recycler view is usually a good choice for holding these items 
+because it recycles it’s content and thus improves performance. But since Recycler view recycles it’s items, 
+views that have toggling behaviour(check boxes, switches erc) usually behave unpredictably with Recycler Views 
+this especially happens when developers do not handle the logic of displaying the current state of the view (checked/unchecked)</p>
+
+<p>The common way a developer can go about setting the state of the view is set it to checked when the view is clicked 
+then uncheck it when the view is clicked again by checking the previous state of the view.</p>
+
+<p>i.e</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span><span class="n">mCheckedView</span><span class="o">.</span><span class="na">isChecked</span><span class="o">())</span> <span class="o">{</span>
+    <span class="n">mCheckedView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="k">else</span> <span class="o">{</span>
+    <span class="nc">CheckedView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This logic might appear correct but it is not, when you scroll down the Recycler view such that the current view is no 
+longer visible, it usually reuses the state the view to set the state of some other view down the list, this can also 
+happens when the keyboard input covers the view. You get a similar behavior to this animation.</p>
+
+<p><img src="/img/1gNSazrkWiBdW64CbRw7ljA.gif" alt="" /></p>
+
+<p>So how do we handle this problem?</p>
+
+<p>We would consider 2 options</p>
+
+<ol>
+  <li>Block the view holder from recycling it’s views. (DON’T DO THIS)</li>
+  <li>Use your model to hold the state of the items.</li>
+  <li>Use an array to hold the state of the items.</li>
+</ol>
+
+<p><strong><em>1</em></strong>. Block the View Holder from recycling it’s views.</p>
+
+<p>You can achieve this by setting the isRecycleable property of the Recycler view view holder to false, 
+this would prevent the Recycler view from recycling it’s content. In the constructor of the view holder add the following line.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ViewHolder</span><span class="o">(</span><span class="nc">View</span> <span class="n">itemView</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">itemView</span><span class="o">);</span>
+    <span class="o">...</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">setIsRecyclable</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span> 
+</code></pre></div></div>
+
+<p>This is a bad idea because the reason why you are using the Recycler view in the first place is to take advantage of 
+its Recyclable property. So this is an option, but it is not recommended. It solves the problem of using the wrong 
+state for the wrong views but when the views goes out of visibility they return to their default state.</p>
+
+<p><img src="/img/1gNSazrkWiBdW64CbRw7ljA.gif" alt="" /></p>
+
+<p><em>behavior after method 1</em></p>
+
+<p>So we need a sort of memory to hold the current state of each item in the view.</p>
+
+<p><strong><em>2</em></strong>. Use your model to hold the current state of the view.</p>
+
+<p>You could have a Boolean field in your model for the Recycler View to hold the state of your current item.So in your Model class you can have</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isChecked</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">getChecked</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">isChecked</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setChecked</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">checked</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">isChecked</span> <span class="o">=</span> <span class="n">checked</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>then when in the click even handler of the view you can toggle this property of the item like this:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>  
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="nc">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>  
+ <span class="c1">// toggle the checked view based on the checked field in the model  </span>
+ <span class="kt">int</span> <span class="n">adapterPosition</span> <span class="o">=</span> <span class="n">getAdapterPosition</span><span class="o">();</span>  
+ <span class="k">if</span> <span class="o">(</span><span class="n">items</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">adapterPosition</span><span class="o">).</span><span class="na">getChecked</span><span class="o">())</span> <span class="o">{</span>  
+  <span class="n">mCheckedTextView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>  
+  <span class="n">items</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">adapterPosition</span><span class="o">).</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>  
+ <span class="o">}</span>  
+ <span class="k">else</span> <span class="o">{</span>  
+  <span class="n">mCheckedTextView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>  
+  <span class="n">items</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">adapterPosition</span><span class="o">).</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>  
+  <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>then we have to make sure the correct state is displayed when the view is bound like this</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>  
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onBindViewHolder</span><span class="o">(</span><span class="nc">ViewHolder</span> <span class="n">holder</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>  
+ <span class="n">holder</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>  
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">ViewHolder</span> <span class="kd">extends</span> <span class="nc">RecyclerView</span><span class="o">.</span><span class="na">ViewHolder</span> <span class="kd">implements</span> <span class="nc">View</span><span class="o">.</span><span class="na">OnClickListener</span> <span class="o">{</span>  
+  
+ <span class="nc">CheckedTextView</span> <span class="n">mCheckedTextView</span><span class="o">;</span>  
+  
+ <span class="nc">ViewHolder</span><span class="o">(</span><span class="nc">View</span> <span class="n">itemView</span><span class="o">)</span> <span class="o">{</span>  
+ <span class="kd">super</span><span class="o">(</span><span class="n">itemView</span><span class="o">);</span>  
+ <span class="n">mCheckedTextView</span> <span class="o">=</span> <span class="o">(</span><span class="nc">CheckedTextView</span><span class="o">)</span> <span class="n">itemView</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="no">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">checked_text_view</span><span class="o">);</span>  
+ <span class="n">itemView</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>  
+ <span class="o">}</span>  
+  
+ <span class="kt">void</span> <span class="nf">bind</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>  
+ <span class="n">mCheckedTextView</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">items</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getPosition</span><span class="o">()));</span>  
+ 
+ <span class="k">if</span> <span class="o">(</span><span class="n">items</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getChecked</span><span class="o">())</span> <span class="o">{</span>  
+ <span class="n">mCheckedTextView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>  
+ <span class="o">}</span>  
+ <span class="k">else</span> <span class="o">{</span>  
+ <span class="n">mCheckedTextView</span><span class="o">.</span><span class="na">setChecked</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>  
+  <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>…this correctly displays the correct state for the correct view.</p>
+
+<p>The disadvantage of this method is that the model is now aware of the view and this might not be a very good software design, so the last method would make sure the state of the views are stored in the adapter.</p>
+
+<p><strong>3</strong>. Use an array to hold the state of the items.</p>
+
+<p>To do this, in the adapter we use a Map or a <a href="https://developer.android.com/reference/android/util/SparseBooleanArray.html">SparseBooleanArray</a> (which is similar to a map but is a key value pair of int and boolean)to store the state of all the items in our list of items and then use the keys and values to compare when toggling the checked state.</p>
+
+<p>In the Adapter create a SparseBooleanArray</p>
+
+<p>declare a spare boolean array to hold the state of the itemsthen in the item click handler onClick() use the state of the items in the itemStateArray to check before toggling, here is an example</p>
+
+<p>also use the sparse boolean array to set the checked state when the view is bound</p>
+
+<p>I prefer using this method since it does everything in the Adapter and does not interfere with the model.</p>
+
+<p><img src="/img/1ytOlUmus17Un5FUytrSoyA.gif" alt="" /></p>
+
+<p><em>behavior of the views after method 2 and 3</em></p>
+
+<p>from the animation above, notice how the state of the check boxes are retained even after the views are recycled.</p>
+
+<p>I have created a github repo with the source code for this tutorial</p>
+
+<p><a href="https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array" title="https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array">Oziomajnr/RecyclerViewCheckBoxExample2  RecyclerViewCheckBoxExample2</a><a href="https://github.com/Oziomajnr/RecyclerViewCheckBoxExample2/tree/with-sparse-boolean-array"></a></p>
+
+<p>it has 3 branches each demonstrating the 3 methods listed in this article, 
+feel free to submit contributions in the repo if you know other methods for solving this problem.</p>
+
+<p>Please feel free to comment if you have problem implementing this solution.</p>
+
+  </div><div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url = 'https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html';
+      this.page.identifier = 'https://blog.oziomaogbe.com/2017/10/18/android-handling-checkbox-state-in-recycler-views.html';
+    };
+
+    (function() {
+      var d = document, s = d.createElement('script');
+
+      s.src = 'https://oziomas-blog.disqus.com/embed.js';
+
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript><a class="u-url" href="/2017/10/18/android-handling-checkbox-state-in-recycler-views.html" hidden></a>
+</article>
+
+    </div>
+</main><footer class="site-footer h-card">
+    <data class="u-url" href="/"></data>
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+            <div class="footer-col one-half">
+                <h2 class="footer-heading">Ozioma Ogbe</h2>
+                <ul class="contact-list">
+                    <li class="p-name">{&quot;twitter&quot;=&gt;&quot;oziomajnr&quot;}</li></ul>
+            </div>
+
+            <div class="social-links"><ul class="social-media-list"></ul>
+</div>
+        </div>
+        <form action="https://getsimpleform.com/messages?form_api_token=1971f93bf364c88720ddd88d8495d7fe" method="post"
+              class='form-inline'>
+            <input type='email' name='name' placeholder='Subscribe' class='form-control'/>
+            <button type='submit' class='btn btn-primary'>Subscribe</button>
+            <input type='hidden' name='redirect_to' value='http://blog.oziomaogbe.com/static/subscribe_thank_you.html'/>
+        </form>
+    </div>
+
+</footer>
+</body>
+
+
+
+</html>
