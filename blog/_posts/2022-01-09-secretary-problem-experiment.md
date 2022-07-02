@@ -25,7 +25,7 @@ In this article, I would attempt to test the rule by running two simulations of 
 
 We would judge the result of the experiment based on the following criteria
 
-1. The total number of times the best candidate is selected for the 1 million times the experiment was run should be maximum when we select the next best candidate after considering 37% of the total applicants.
+1. The total number of times the best candidate is selected for the 1 million times that the experiment would be run should be maximum when we select the next best candidate after considering 37% of the total applicants.
 2. For other stoppage points further away from 37%, there should be a considerable drop in the total number of times the best candidate is selected.
 
 To simulate the solution to the problem I wrote a Kotlin script that models the Secretary and their interview performance as an integer value
