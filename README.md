@@ -10,3 +10,4 @@ Tools used:
 4. Travis CI
 5. Jekyll
 
+Read blog post about how I made built the blog. https://blog.oziomaogbe.com/2019/08/12/how-i-built-my-blog-using-jekyll-firebase-github-travis-ci.html 
