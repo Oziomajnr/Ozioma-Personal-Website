@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Software Projects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #35424a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+        }
+        .project {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .project img {
+            max-width: 100px;
+            margin-right: 20px;
+        }
+        .project-details {
+            flex: 1;
+        }
+        .project-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .project-description {
+            margin-bottom: 10px;
+        }
+        .project-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Software Projects</h1>
+    </header>
+    <div class="container">
+        <div class="project">
+            <img src="https://play-lh.googleusercontent.com/tRAy2RRc-m4y9Kl5d6ws5G9RO3r0hQlTM-drarPa8VnZuIigKlVbABvbFsEwoKXnJPLi=w480-h960 alt="Project 1 Image">
+            <div class="project-details">
+                <div><a class="project-link" href="https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter">Chess to Gif</a></div>
+                <div class="project-description">Convert you chess games to animated gifs and share with friends.</div>
+            </div>
+        </div> projects as needed -->
+    </div>
+</body>
+</html>
