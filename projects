@@ -55,12 +55,12 @@
     </header>
     <div class="container">
         <div class="project">
-            <img src="https://play-lh.googleusercontent.com/tRAy2RRc-m4y9Kl5d6ws5G9RO3r0hQlTM-drarPa8VnZuIigKlVbABvbFsEwoKXnJPLi=w480-h960 alt="Project 1 Image">
+            <img src="https://play-lh.googleusercontent.com/tRAy2RRc-m4y9Kl5d6ws5G9RO3r0hQlTM-drarPa8VnZuIigKlVbABvbFsEwoKXnJPLi=w480-h960" alt="Project 1 Image">
             <div class="project-details">
                 <div><a class="project-link" href="https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter">Chess to Gif</a></div>
                 <div class="project-description">Convert you chess games to animated gifs and share with friends.</div>
             </div>
-        </div> projects as needed -->
+        </div> 
     </div>
 </body>
 </html>
