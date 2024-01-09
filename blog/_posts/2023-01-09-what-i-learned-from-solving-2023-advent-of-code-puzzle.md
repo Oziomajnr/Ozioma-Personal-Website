@@ -1,3 +1,4 @@
+---
 layout: post
 title: "What I Learned from Solving 2023 Advent Of Code Puzzles"
 date: 2024-01-09
