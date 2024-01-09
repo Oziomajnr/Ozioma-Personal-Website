@@ -2,9 +2,7 @@
 layout: post
 title: "What I learned from solving 2023 Advent Of Code Puzzles"
 date: 2024-01-10
-description: A journey through the fascinating challenges presented in the 2023 Advent of Code competition and the insightful learnings it brought along.
 ---
-# What I learned from solving 2023 Advent Of Code Puzzles
 
 
 For the past 4 years, I have participated in the [Advent of Code](https://adventofcode.com/2023/about) event. In this event you get to solve a series of **50 puzzles**, two every day, between December 1st and 25th. The puzzles can usually be solved using algorithm and data structure techniques.
