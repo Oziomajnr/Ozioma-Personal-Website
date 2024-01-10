@@ -21,7 +21,6 @@ description: >- # this means to ignore newlines until "baseurl:"
 
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.oziomaogbe.com" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: oziomajnr
 github_username:  oziomajnr
 linkedin_username: oziomajnr
 stackoverflow_username: ogbe
@@ -36,7 +35,6 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 author:
-  twitter: oziomajnr
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
