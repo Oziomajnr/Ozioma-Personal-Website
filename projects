@@ -62,5 +62,14 @@
             </div>
         </div> 
     </div>
+    <div class="container">
+        <div class="project">
+            <img src="https://play-lh.googleusercontent.com/JMTqZC8LlJRebAuooZg65KJ7PMnHSY9mXAYrglj2m8MYmGrbF7hA41C73-s-cVWa_CM=w5120-h2880" alt="Project 1 Image">
+            <div class="project-details">
+                <div><a class="project-link" href="https://play.google.com/store/apps/details?id=elvis10ten.com.past_questions&hl=en&gl=US">Prep Up</a></div>
+                <div class="project-description">Exam preparation application for west africans.</div>
+            </div>
+        </div> 
+    </div>
 </body>
 </html>
