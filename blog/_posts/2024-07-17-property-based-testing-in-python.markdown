@@ -2,11 +2,9 @@
 layout: post
 title:  "Property-Based Testing in Python [WIP]"
 date:   2024-07-19
-categories: testing python
+categories: ["python", "testing", "property-based-testing", "hypothesis"]
 ---
 
-
-# Property Based Testing in Python [WIP]
 
 
 ## Introduction
