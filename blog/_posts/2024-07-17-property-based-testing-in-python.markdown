@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Property-Based Testing in Python [WIP]"
-date:   2024-07-19
+date:   2024-07-17
 categories: ["python", "testing", "property-based-testing", "hypothesis"]
 ---
 
