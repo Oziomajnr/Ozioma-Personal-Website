@@ -242,7 +242,6 @@ Adopting Property-Based Testing (PBT) can significantly enhance your testing app
   Start by defining simple, easy-to-verify properties. Gradually introduce more complex properties as you become more comfortable with PBT. This approach helps build confidence and familiarity with the methodology.
 
 
-- **Low Footprint**
 
 
 - **Make sure it adds value**
