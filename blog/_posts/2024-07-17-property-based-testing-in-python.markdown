@@ -33,7 +33,8 @@ def test_add():
     assert add(0, 0) == 0
     assert add(-1, 1) == 0
 ```
-In the example above, we have a simple function that takes in two numbers and returns the sum of the numbers and we are testing the `add` function by providing it with specific input values and checking if the output matches our expectations.
+In the example above, we have a simple function that takes in two numbers and returns the sum of the numbers.
+We are testing the `add` function by providing it with specific input values and checking if the output matches our expectations.
 
 However, this example-based approach  has the following limitations:
 
@@ -146,7 +147,7 @@ From the given sorting example above, we can see that the most important step in
     - Example: The sorting example shown earlier, you do not need to know how the  sorting algorithm works to verify the output.
       You can learn about more common properties from [this post](https://fsharpforfunandprofit.com/posts/property-based-testing-2/)
 
-Lets demonstrate one of the properties mentioned above, the *inverse property*
+Let's demonstrate one of the properties mentioned above, the *inverse property*
 
 ### Example: Serialization/Deserialization
 Let's look at an example that tests the serialization and deserialization of a `User` object.
@@ -205,7 +206,7 @@ This illustrates the inverse property in property-based testing.
 
 -   **Difficulty in Debugging**: When a test fails, identifying the root cause can be difficult due to the abstract nature of properties and the potentially large input space, PBT libraries have features to simplify debugging like seeding and example database.
 
--   **Flakiness**: Since the test inputs are randomly generated, a test could fail in one run and pass when retried because it is running another set of inputs, this is called *flakiness* and it is undesirable in tests. However, most property based testing libraries prevent this by always running failed test cases before running randomly generated ones.
+-   **Flakiness**: Since the test inputs are randomly generated, a test could fail in one run and pass when retried because it is running another set of inputs, this is called *flakiness*, and it is undesirable in tests. However, most property based testing libraries prevent this by always running failed test cases before running randomly generated ones.
 
 -   **Pipeline Slowdown due to Many Tests**: Running a large number of property-based tests, especially with extensive input generation, can significantly slow down the CI/CD pipeline.
 
