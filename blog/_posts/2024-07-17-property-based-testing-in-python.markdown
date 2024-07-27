@@ -8,9 +8,9 @@ categories: ["python", "testing", "property-based-testing", "hypothesis", "kotes
 
 
 ## Introduction
-We write tests to help identify and catch bugs in our code but while some bugs are obvious, others are hidden in edge cases. So we aim to test as many unique cases as possible, but there’s a limit to how many tests we can manually write.
-What if we could automatically generate numerous test cases? That’s where Property Based Testing comes in.
-
+Testing is critical in the software development process as it helps identify bugs and ensure our software works correctly. 
+While some potential bugs are easy to identify, others are hidden in less obvious cases. So, we aim to test as many scenarios as possible, but manually writing and maintaining numerous test cases can be impractical.
+Property-Based Testing (PBT) addresses this challenge by automatically generating a wide variety of test cases, making it easier to find and fix edge cases in our code.
 
 ## What is Property-Based Testing?
 Property-based testing is a methodology where  **properties** that describe the **expected behavior** of our system under various conditions are automatically tested using **randomly generated inputs**.
@@ -47,11 +47,12 @@ These limitations can make it difficult to ensure comprehensive test coverage an
 ### How Does Property-Based Testing Help?
 Property-based testing addresses the limitations of example-based testing by offering several advantages:
 
-- **Random Inputs:** Automatically generates a list of random inputs covering a wide range of cases. Some property based testing libraries often applies some heuristics to generate possible edge cases inputs.
+- **Random Inputs:** Automatically generates a list of random inputs covering a wide range of cases.
 - **Scalability:** No need to manually add more test cases.
 - **Better Description:** The tests describe the system’s behavior more comprehensively.
 
 To illustrate these benefits, let's examine another example using a simple sorting function.
+We will start with example based testing and then improve it with property based testing.
 
 ## Example: Sorting Function
 Imagine we have a function `sort_list` and it takes in a list of numbers and sorts them.
@@ -64,7 +65,7 @@ def sort_list(nums):
                 nums[j], nums[j + 1] = nums[j + 1], nums[j]
     return nums
 ```
-We can test this function as follow
+We can test this function as follows
 
 ### Example-Based Test
 We could have some hardcoded inputs and assert against some expected outputs.
@@ -76,9 +77,9 @@ def test_sort_list_example_based():
     assert sort_list([-1, -100, 15, -19, 0, 0]) == [-100, -19, -1, 0, 0, 15]
     
 ```
-While this approach verifies that the function works for specific cases, it has the limitation of limited coverage and scalability mentioned earlier:
+While this approach verifies that the function works for specific cases, it has the limitation of limited coverage (we only have a fixed number of test cases) and scalability mentioned earlier:
 
-To improve our example-based tests, we can define a property that the output from our function should always satisfy: *the list should be sorted.*
+To improve our example-based tests, we can define a property that the output from our function should always satisfy, that is, *the list should be sorted.*
 
 To achieve this, we have created a function to check if a list is sorted.
 
@@ -92,17 +93,19 @@ def is_sorted(nums):
     return True
  ```
 Since we now have a property that correctly describes the behavior of our function, we expect that it should always be true for any input.
-We can now improve our test as follows
+We can now improve our test by removing the hardcoded expected outputs and instead assert that the output of our function satisfies the property we have defined.
 ```python
 def test_sort_list_example_based_improved():
     for item in [[3, -1, 4, -5, 2], [1, 2, 3, 4, 5, 6, 7], [-1, -100, 15, -19, 0, 0], []]:
         assert is_sorted(sort_list(item))
 ```
 
-This improved test checks the property that the output list is sorted for each input list, but we still have to manually specify the input lists. We can enhance this further by automatically generating random test cases as input to our test function. This can be achieved by using a property-based testing library like [Hypothesis](https://hypothesis.readthedocs.io/en/latest/#), [Scalacheck](https://scalacheck.org/) or [Kotest](https://kotest.io/docs/proptest/property-based-testing.html).
+This improved test checks the property that the output list is sorted for each input list, but we still have to manually specify the input lists. We can enhance this further by automatically generating random test cases as input to our test function. 
+We could write another function to generate random lists of integers and use it in our test function but this can be achieved by using a property-based testing library like [Hypothesis](https://hypothesis.readthedocs.io/en/latest/#), [Scalacheck](https://scalacheck.org/) or [Kotest](https://kotest.io/docs/proptest/property-based-testing.html).
 
 ### Property-Based Test
 Property-based testing extends the idea of example-based testing by automatically generating a wide range of inputs to test against the defined property.
+The following sample demonstrates how to use [Hypothesis](https://hypothesis.readthedocs.io) generate the inputs for our test function.
 
 ```python
 from hypothesis import given, strategies as st
@@ -125,13 +128,19 @@ With this setup, Hypothesis automatically creates diverse input lists to test th
 
 
 ### Common Properties in PBT
-From the given sorting example above, we can see that the most important test in property based testing is defining the properties that describes our system, once we have the properties, we can generate random test cases and assert against those properties. Determining these properties might not be very easy sometimes, but here are some common properties that we could use with our systems.
+From the given sorting example above, we can see that the most important step in property based testing is defining the properties that describes our system, once we have the properties, we can generate random test cases and assert against those properties. Determining these properties might not be very easy sometimes, but here are some common properties that we could use with our systems.
 1. **Inverse Property:** Applying an operation and then its inverse should return the original value.
     - Example: Serialization/Deserialization.
+   
+   
 2. **Idempotence Property:** Applying an operation multiple times has the same effect as applying it once.
     - Example: Removing duplicates from a collection, database updates.
+   
+   
 3. **Invariant Property:** Certain properties of the input should remain unchanged after the operation.
     - Example: The size of a collection after mapping/transformation, sum of balance of two accounts after a transfer from one of the accounts to the other one, left and right hand side of an account balance sheet.
+   
+   
 4. **Hard to Prove, Easy to Verify:** The correctness of the output is easier to check than proving the algorithm is correct.
     - Example: The sorting example shown earlier, you do not need to know how the  sorting algorithm works to verify the output.
       You can learn about more common properties from [this post](https://fsharpforfunandprofit.com/posts/property-based-testing-2/)
@@ -202,7 +211,7 @@ This illustrates the inverse property in property-based testing.
 ## Features of property based testing libraries
 So far we have only used property based testing library for generating inputs, but they do more than that, here are some features that are available in most PBT libraries like Hypothesis, Scalacheck and Kotest.
 
--  **Generates Inputs**
+-  **Test Case generation**
    PBT libraries automatically create a wide range of test inputs to explore the behavior of the system under different conditions. For example, Hypothesis (Python) uses strategies to generate diverse input data, ScalaCheck (Scala) provides a variety of generators for common data types and structures, and Kotest (Kotlin) includes built-in arbitraries to generate inputs, ensuring comprehensive testing of code with various inputs.
 
 
@@ -211,8 +220,8 @@ So far we have only used property based testing library for generating inputs, b
 
 
 - **Input Shrinking**
-  When a test fails, PBT libraries attempt to find the smallest possible input that still causes the failure, making it easier to diagnose and fix the issue. Hypothesis automatically reduces the size of failing inputs, ScalaCheck shrinks the failing input to its minimal form, and Kotest performs input shrinking to help developers quickly understand the root cause of a test failure.
-
+  In PBT, input shrinking is the process of reducing the size of failing inputs to simplify debugging and identify the root cause of test failures. 
+  In the sorting example above, a failing test case could have hundreds of very large numbers and this could make it difficult to visually inspect and detect the issue, input shrinking would reduce the size of the input to the smallest possible input that still causes the failure, making it easier to diagnose and fix the issue. 
 
 - **Compatibility**
   PBT libraries integrate seamlessly with popular testing frameworks, allowing developers to use property-based tests alongside traditional unit tests. Hypothesis works with `pytest` and `unittest`, ScalaCheck integrates with ScalaTest and specs2, and Kotest has built-in support for property testing within the Kotest framework, facilitating the use of both property-based and traditional tests.
@@ -223,7 +232,11 @@ So far we have only used property based testing library for generating inputs, b
 
 
 - **Avoiding Flakiness**
-  PBT libraries include features to reduce or avoid flaky tests, which can occur due to non-deterministic input generation or test execution. Hypothesis provides reproducibility by saving the seeds of failing tests, allowing developers to replay and debug the same scenario. ScalaCheck uses deterministic random number generation to ensure consistent test results across runs. Kotest offers configuration options to control randomness and ensure that tests produce reliable results.
+  PBT libraries include features to reduce or avoid flaky tests, which can occur due to non-deterministic input generation or test execution.
+  Hypothesis for example contains a database of examples that have caused failures in the past, and it will always run these examples before running randomly generated ones, this ensures that if a test fails, it will always fail until the issue is fixed, this prevents flakiness in tests.
+  Most PBT libraries also provide the ability to set a seed for the random number generator, by reusing the seed of a failing test, you can reproduce the same failing test case, this makes it easier to debug and fix the issue.
+
+   
 
 These features of PBT libraries enhance the testing process by ensuring comprehensive input coverage, enabling custom input generation, simplifying debugging with input shrinking, integrating with existing testing frameworks, providing observability into the testing process, and reducing flakiness.
 
@@ -241,11 +254,11 @@ Adopting Property-Based Testing (PBT) can significantly enhance your testing app
 - **Begin with Basic Properties**
   Start by defining simple, easy-to-verify properties. Gradually introduce more complex properties as you become more comfortable with PBT. This approach helps build confidence and familiarity with the methodology.
 
-
-
+  
 
 - **Make sure it adds value**
-  Ensure that your PBT tests provide valuable insights and identify significant issues. Well-designed properties should add meaningful coverage and improve the robustness of your codebase.
+    Focus on writing properties that add value to your testing process. Prioritize properties that uncover edge cases, verify critical system behavior, or address known issues. This ensures that your PBT efforts are targeted and effective.
+
 
 By following these strategies, you can effectively adopt Property-Based Testing and enhance your overall testing approach.
 
