@@ -267,4 +267,4 @@ By following these strategies, you can effectively adopt Property-Based Testing 
 
 
 
-This article was adapted from my talk at the ThaiPy meetup, you can find the slides and code examples on  [GitHub](https://github.com/Oziomajnr/Property-Based-Testing-Sample-Python).
+This article was adapted from my talk at the [ThaiPy meetup](https://www.meetup.com/thaipy-bangkok-python-meetup/events/299986805/), you can find the slides and code examples on  [GitHub](https://github.com/Oziomajnr/Property-Based-Testing-Sample-Python).
