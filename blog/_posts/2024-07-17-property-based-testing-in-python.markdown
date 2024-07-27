@@ -10,7 +10,7 @@ categories: ["python", "testing", "property-based-testing", "hypothesis", "kotes
 ## Introduction
 Testing is critical in the software development process as it helps identify bugs and ensure our software works correctly. 
 While some potential bugs are easy to identify, others are hidden in less obvious cases. So, we aim to test as many scenarios as possible, but manually writing and maintaining numerous test cases can be impractical.
-Property-Based Testing (PBT) addresses this challenge by automatically generating a wide variety of test cases, making it easier to find and fix edge cases in our code.
+**Property-Based Testing (PBT)** addresses this challenge by automatically generating a wide variety of test cases, making it easier to find and fix edge cases in our code.
 
 ## What is Property-Based Testing?
 Property-based testing is a methodology where  **properties** that describe the **expected behavior** of our system under various conditions are automatically tested using **randomly generated inputs**.
@@ -126,6 +126,7 @@ With this setup, Hypothesis automatically creates diverse input lists to test th
 - **Automatic Input Generation:** The `@given` decorator instructs Hypothesis to generate inputs according to the specified strategy. In this case, it generates lists of integers.
 - **Diverse Test Cases:** By default, Hypothesis runs the test function with a wide variety of inputs to thoroughly exercise the code. It typically generates and tests 100 different inputs per test case, but this can be customized.
 
+Similar test case generators are available in other property-based testing libraries.
 
 ### Common Properties in PBT
 From the given sorting example above, we can see that the most important step in property based testing is defining the properties that describes our system, once we have the properties, we can generate random test cases and assert against those properties. Determining these properties might not be very easy sometimes, but here are some common properties that we could use with our systems.
