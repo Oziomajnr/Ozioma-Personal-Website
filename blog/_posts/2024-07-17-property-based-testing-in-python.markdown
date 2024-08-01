@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "An Introduction to Property-Based Testing [WIP]"
+title: "An Introduction to Property-Based Testing"
 date: 2024-07-17
 categories: ["python", "testing", "property-based-testing", "hypothesis", "kotest", "scalacheck"]
 ---
@@ -229,26 +229,25 @@ So far we have only used property based testing library for generating inputs, b
 - **Custom Strategies**:  
   PBT libraries allow users to define custom strategies or generators for specific needs, ensuring that the generated inputs closely match the domain requirements. Hypothesis allows the creation of composite strategies to generate complex input data, ScalaCheck allows defining custom generators to produce inputs that match particular criteria, and Kotest provides the flexibility to create custom arbitraries, enabling testing of code with domain-specific data.
 
+- **Stateful Testing**  
+  Some PBT libraries also support [stateful testing](https://hypothesis.readthedocs.io/en/latest/stateful.html), where instead of testing functions in isolation, you could specify the actions that can happen in your system along with the strategies to generate their inputs and the library would generate different combination of those actions along with the randomized inputs, and you can assert that the state of the system is correct after a sequence of these actions. You can find a demonstration of stateful testing in [this article](https://hypothesis.works/articles/rule-based-stateful-testing/).
 
 - **Input Shrinking**  
   In PBT, input shrinking is the process of reducing the size of failing inputs to simplify debugging and identify the root cause of test failures.   
   In the sorting example above, a failing test case could have hundreds of very large numbers and this could make it difficult to visually inspect and detect the issue, input shrinking would reduce the size of the input to the smallest possible input that still causes the failure, making it easier to diagnose and fix the issue.
 
-- **Compatibility**  
+- **Compatibility**
   PBT libraries integrate seamlessly with popular testing frameworks, allowing developers to use property-based tests alongside traditional unit tests. Hypothesis works with `pytest` and `unittest`, ScalaCheck integrates with ScalaTest and specs2, and Kotest has built-in support for property testing within the Kotest framework, facilitating the use of both property-based and traditional tests.
 
 
--  **Observability**  
+-  **Reporting**
    PBT libraries provide insights and statistics about the tests, such as the number of cases generated and the distribution of inputs, helping developers understand the testing coverage and effectiveness. Hypothesis offers detailed reports and statistics on the test cases executed, ScalaCheck outputs statistics about the tests including the number of successful cases and counterexamples found, and Kotest logs information about the property tests, helping developers assess the thoroughness of their tests.
 
 
-- **Avoiding Flakiness**  
-  PBT libraries include features to reduce or avoid flaky tests, which can occur due to non-deterministic input generation or test execution.  
-  Hypothesis for example contains a database of examples that have caused failures in the past, and it will always run these examples before running randomly generated ones, this ensures that if a test fails, it will always fail until the issue is fixed, this prevents flakiness in tests.  
+- **Test Stability**
+  PBT libraries include features to reduce or avoid flaky tests, which can occur due to non-deterministic input generation or test execution.
+  Hypothesis for example contains a database of examples that have caused failures in the past, and it will always run these examples before running randomly generated ones, this ensures that if a test fails, it will always fail until the issue is fixed, this prevents flakiness in tests.
   Most PBT libraries also provide the ability to set a seed for the random number generator, by reusing the seed of a failing test, you can reproduce the same failing test case, this makes it easier to debug and fix the issue.
-
-- **Stateful Testing**  
-  Some PBT libraries also support [stateful testing](https://hypothesis.readthedocs.io/en/latest/stateful.html), where instead of testing functions in isolation, you could specify the actions that can happen in your system along with the strategies to generate their inputs and the library would generate different combination of those actions along with the randomized inputs, and you can assert that the state of the system is correct after a sequence of these actions. You can find a demonstration of stateful testing in [this article](https://hypothesis.works/articles/rule-based-stateful-testing/).
 
 
 These features of PBT libraries enhance the testing process by ensuring comprehensive input coverage, enabling custom input generation, simplifying debugging with input shrinking, integrating with existing testing frameworks, providing observability into the testing process, and reducing flakiness.
