@@ -15,7 +15,7 @@ While some potential bugs are easy to identify, others are hidden in less obviou
 ## What is Property-Based Testing?
 Property-based testing is a methodology where  **properties** that describe the **expected behavior** of our system under various conditions are automatically tested using **randomly generated inputs**.
 
-To better understand property-based testing, let's first look at a more common testing approach: **example-based testing**.
+To better understand property-based testing, let's first look at the most common testing approach: **example-based testing**.
 
 ### Example-Based Testing
 Example-based testing involves writing specific test cases with predefined inputs and expected outputs. This method is straightforward and intuitive, as it allows developers to check if a function produces the correct result for known scenarios.
@@ -48,7 +48,7 @@ These limitations can make it difficult to ensure comprehensive test coverage an
 ### How Does Property-Based Testing Help?
 Property-based testing addresses the limitations of example-based testing by offering several advantages:
 
-- **Input generation:** Automatically generates a list of random inputs covering a wide range of cases.
+- **Input generation:** Automatically generates a list of random inputs covering a wide range of cases, including edge cases.
 - **Scalability:** No need to manually add more test cases.
 - **Better Description:** The tests describe the system’s behavior more comprehensively.
 
@@ -141,7 +141,7 @@ From the given sorting example above, we can see that the most important step in
 
 2.  **Invariant Property:** Certain properties of the input should remain unchanged after the operation.
     - Example: The size of a collection after mapping/transformation, sum of balance of two accounts after a transfer from one of the accounts to the other one, left and right hand side of an account balance sheet.
-    - Another common example of the invariant property is demonstrated in this [QuteBrowser Source Code](https://github.com/qutebrowser/qutebrowser/blob/43fa657f55c08256c1f8fe39b9c1348f499f4831/tests/unit/utils/test_utils.py#L933) the invariant property here is that the code should not throw any unexpected errors when parsing any text input. This is a good property to begin with if you are not sure of what property describes your system.
+    - Another common example of the invariant property is demonstrated in this [QuteBrowser Source Code](https://github.com/qutebrowser/qutebrowser/blob/43fa657f55c08256c1f8fe39b9c1348f499f4831/tests/unit/utils/test_utils.py#L933). The invariant property here is that the parsing function should not throw any unexpected errors when parsing any text input. This is a good property to begin with if you are not sure of what property describes your system.
 
 
 3. **Idempotence Property:** Applying an operation multiple times has the same effect as applying it once.
