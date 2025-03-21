@@ -6,15 +6,16 @@ date:	2025-03-21
 
 ## Introduction
 
-When building the **PgnToGif** Android application, I wanted to create a seamless way to convert chess games stored in PGN (Portable Game Notation) format into animated GIFs. This would allow players and enthusiasts to share game replays in a lightweight, universally supported format.
+The **PgnToGif** Android app was created to help chess players and fans convert PGN (Portable Game Notation) files into animated GIFs. This allows users to share their games as short animations without needing special chess software. The project involved solving several technical challenges, such as reading PGN files, drawing chess boards, creating images, and making smooth GIF animations.
 
-In this post, I’ll walk through how I built the app, the key technical challenges, and how the different components work together. The code for this project is available on [GitHub](https://github.com/Oziomajnr/PgnToGif), and you can try out the app on [Google Play](https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter).
+This article explains the development process, key challenges, and how they were overcome. It also covers performance improvements and design choices that made the app run efficiently. You can find the full source code on [GitHub](https://github.com/Oziomajnr/PgnToGif) and download the app from [Google Play](https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter).
 
-## Understanding PGN (Portable Game Notation)
+## What is PGN (Portable Game Notation)?
 
-PGN is a widely used format for recording chess games. A typical PGN file contains:
+PGN is a standard format for recording chess games. A PGN file consists of:
 
-1. **Tag Pairs (Metadata about the game):**
+1. **Game Information (Metadata):**
+
 ```pgn
 [Event "World Championship Match"]
 [Site "London, England"]
@@ -24,14 +25,15 @@ PGN is a widely used format for recording chess games. A typical PGN file contai
 [Result "1/2-1/2"]
 ```
 
-2. **Movetext (The actual moves played):**
+2. **Move List:**
+
 ```pgn
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6
 ```
 
-### PGN Parsing in the Application
+### How the App Reads PGN Files
 
-To process PGN files in the app, I used the `bhlangonijr` chess library, which allows efficient parsing and handling of chess moves. Here’s how a PGN file is loaded:
+To handle PGN files, the app uses the `bhlangonijr` chess library. Here’s how it loads a PGN file:
 
 ```kotlin
 val pgn = PgnHolder(pgnFile.absolutePath)
@@ -39,18 +41,23 @@ pgn.loadPgn()
 val game = pgn.games.firstOrNull()
 ```
 
-The method `processPgnFile()` in [`HomePresenterImpl.kt`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/ui/home/HomePresenterImpl.kt) is responsible for handling PGN parsing. It follows these steps:
+The function `processPgnFile()` in [`HomePresenterImpl.kt`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/ui/home/HomePresenterImpl.kt) follows these steps:
 
-1. Reads the PGN file from storage.
-2. Extracts metadata and moves.
-3. Generates a sequence of board positions for each move.
-4. Prepares data for image conversion.
+1. Reads the PGN file.
+2. Extracts game details and moves.
+3. Creates a list of board positions for each move.
+4. Prepares the data for display.
+5. Handles errors for incorrect PGN files.
+6. Improves efficiency by processing moves quickly.
+7. Supports different PGN formats.
+8. Uses memory-saving techniques for large PGN files.
+9. Provides user feedback when errors occur.
 
-## Converting Chess Positions to Images
+## Drawing the Chess Board
 
-### Board Representation
+### Board Setup
 
-Each chess position needs to be converted into a visual board representation. The app follows a standard coordinate system:
+Each chess position is displayed as a board with coordinates:
 
 ```
    A  B  C  D  E  F  G  H
@@ -64,44 +71,42 @@ Each chess position needs to be converted into a visual board representation. Th
 1  R  N  B  Q  K  B  N  R
 ```
 
-### Converting Board to Bitmap
+### Converting a Board Position to an Image
 
-The class [`ChessBoardToBitmapConverter.kt`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/converter/ChessBoardToBitmapConverter.kt) is responsible for rendering the board as an image. It:
+The class [`ChessBoardToBitmapConverter.kt`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/converter/ChessBoardToBitmapConverter.kt) handles turning board positions into images. It does the following:
 
-1. Creates a blank `Bitmap`.
-2. Draws the board squares.
-3. Places chess pieces in the correct positions.
-4. Highlights moves and check positions.
+1. Creates a blank image (`Bitmap`).
+2. Draws the chessboard and pieces.
+3. Highlights moves and check positions.
+4. Allows users to change themes and colors.
+5. Adds shading for better visibility.
+6. Optimizes rendering for smooth animations.
+7. Saves images in memory to avoid repeated calculations.
 
-Example code snippet:
+Example:
 
 ```kotlin
 val bitmap = Bitmap.createBitmap(boardSize, boardSize, Bitmap.Config.ARGB_8888)
 val canvas = Canvas(bitmap)
 ```
 
-### Rendering Pieces
+## Making an Animated GIF
 
-Piece images are managed by [`ChessPieceResourceProvider.kt`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/resource/ChessPieceResourceProvider.kt), which:
+### Why Use GIFs?
 
-- Maps piece types to drawable resources.
-- Converts piece images to correctly scaled bitmaps.
-- Supports multiple piece styles.
+GIFs are a great format for chess animations because they:
 
-## Creating the Animated GIF
-
-### GIF Format Overview
-
-GIFs are well-suited for animating chess moves because they support:
-- Multiple frames with different delays.
-- Transparency.
-- Lossless compression.
+- Support multiple frames with time delays.
+- Allow transparency.
+- Have small file sizes for easy sharing.
+- Work on almost all platforms.
 
 ### Encoding the GIF
 
-The [`AnimatedGifEncoder.java`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/util/AnimatedGifEncoder.java) class handles GIF creation by:
+The class [`AnimatedGifEncoder.java`](https://github.com/Oziomajnr/PgnToGif/blob/main/app/src/main/java/com/chunkymonkey/pgntogifconverter/util/AnimatedGifEncoder.java) is responsible for creating GIFs. Here’s how it works:
 
-1. Initializing parameters:
+1. Sets up the GIF settings:
+
 ```kotlin
 encoder.setSize(bitmapWidth, bitmapHeight)
 encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
@@ -109,65 +114,53 @@ encoder.setRepeat(1)
 encoder.setQuality(7)
 ```
 
-2. Iterating through moves:
- - Updating the board position.
- - Converting the board to a `Bitmap`.
- - Adding the frame to the GIF.
+2. Processes each move:
+    - Updates the board for the next move.
+    - Turns the board into an image.
+    - Adds the image to the GIF.
+    - Adjusts the speed of the animation.
+    - Compresses the GIF to reduce file size.
 
-### The Complete Process
-
-The following diagram illustrates the conversion workflow:
-
-```mermaid
-graph TD
-    A[PGN File] --> B[Parse PGN]
-    B --> C[Generate Board States]
-    C --> D[For Each Move]
-    D --> E[Render Board as Bitmap]
-    E --> F[Add Frame to GIF]
-    F --> G{Last Move?}
-    G -->|No| D
-    G -->|Yes| H[Save GIF File]
-```
-
-## Additional Features
-
-### Player Name Overlays
-
-The app allows adding player names on the final GIF by:
-1. Generating text bitmaps.
-2. Overlaying them onto the board image.
-
-### Board Flipping
-
-Users can choose to view the board from White's or Black's perspective, adjusting the piece positions accordingly.
-
-## Lessons Learned & Performance Optimizations
+## Improving Performance
 
 ### Handling Large PGN Files
 
-Parsing large PGN files efficiently was crucial. To optimize:
-- Only the selected game is loaded into memory.
-- Lazy evaluation is used to generate bitmaps on demand.
+For big PGN files, these techniques improve speed and efficiency:
 
-### Bitmap Memory Optimization
+- Loads only the active game into memory.
+- Uses lazy loading for image generation.
+- Runs processes on multiple threads.
+- Caches previously rendered positions.
+- Reduces unnecessary calculations.
+- Detects errors in PGN files early.
 
-Since each move generates a new bitmap, memory usage was a concern. Improvements included:
-- Reusing `Canvas` objects where possible.
-- Using lower resolution bitmaps when needed.
-- Compressing the GIF with adjustable quality settings.
+### Optimizing Memory Usage
+
+Since every move generates a new frame, memory management is important. These optimizations were applied:
+
+- Reuses `Canvas` objects to prevent extra memory use.
+- Uses lower-quality images when possible.
+- Compresses GIFs based on user settings.
+- Runs heavy processing tasks in the background.
+- Monitors memory usage to find and fix slowdowns.
 
 ## Conclusion
 
-The **PgnToGif** project was a great learning experience in:
-- Parsing PGN files and handling chess game logic.
-- Rendering chess positions dynamically.
-- Encoding animated GIFs efficiently.
-- Optimizing Android UI and memory usage.
+Developing **PgnToGif** involved:
 
-The modular design allows easy customization and expansion. Future enhancements could include:
-- More styling options for boards and pieces.
-- Alternative animation formats (e.g., MP4).
-- PGN editing within the app.
+- Efficiently reading and processing PGN files.
+- Creating dynamic chessboard images.
+- Making smooth and optimized GIFs.
+- Improving memory and performance on Android devices.
+- Allowing users to customize their animations.
 
-You can check out the full source code on [GitHub](https://github.com/Oziomajnr/PgnToGif) and download the app from [Google Play](https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter).
+Future updates could include:
+
+- More board and piece styles.
+- Support for MP4 video output.
+- An in-app PGN editor.
+- Cloud storage for GIFs.
+- AI-based move analysis.
+
+Check out the full source code on [GitHub](https://github.com/Oziomajnr/PgnToGif) and download the app on [Google Play](https://play.google.com/store/apps/details?id=com.chunkymonkey.imagetogifconverter).
+
