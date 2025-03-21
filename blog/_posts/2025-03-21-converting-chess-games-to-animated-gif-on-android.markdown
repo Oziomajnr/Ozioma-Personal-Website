@@ -4,8 +4,6 @@ title:	"WIP: Converting Chess Games to Animated Gifs on Android"
 date:	2025-03-21
 ---
 
-# WIP: Converting Chess PGN to Animated GIF: A Technical Deep Dive
-
 ## Introduction
 
 When building the **PgnToGif** Android application, I wanted to create a seamless way to convert chess games stored in PGN (Portable Game Notation) format into animated GIFs. This would allow players and enthusiasts to share game replays in a lightweight, universally supported format.
