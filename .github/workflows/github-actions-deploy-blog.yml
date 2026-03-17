@@ -28,8 +28,9 @@ jobs:
           JEKYLL_ENV=production bundle exec jekyll build --verbose
           cd ..
           ls
-      - uses: w9jds/firebase-action@master
+      - uses: w9jds/firebase-action@90c848b4861dbd006c5ae9e7f23614018f5bac3e
         with:
           args: deploy --only hosting
         env:
            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+           NODE_OPTIONS: "--max-old-space-size=8192"
