@@ -9,4 +9,17 @@
     {%- include google-analytics.html -%}
   {%- endif -%}
   {% seo %}
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll("code.language-mermaid").forEach(function (el) {
+        var pre = el.parentElement;
+        var div = document.createElement("div");
+        div.className = "mermaid";
+        div.textContent = el.textContent;
+        pre.parentElement.replaceChild(div, pre);
+      });
+      mermaid.initialize({ startOnLoad: true, theme: "default" });
+    });
+  </script>
 </head>
