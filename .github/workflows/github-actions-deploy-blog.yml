@@ -13,7 +13,7 @@ jobs:
       ACTIONS_STEP_DEBUG: true
       ACTIONS_RUNNER_DEBUG: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4.1'
@@ -40,7 +40,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         uses: w9jds/firebase-action@v14.15.1
         with:
-          args: deploy --only hosting --non-interactive --force
+          args: deploy --only hosting --non-interactive --force --debug
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           NODE_OPTIONS: "--max-old-space-size=4096"
