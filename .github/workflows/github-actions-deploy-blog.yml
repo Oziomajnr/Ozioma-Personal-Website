@@ -8,6 +8,8 @@ on:
 jobs:
   deploy-site:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -28,9 +30,15 @@ jobs:
           JEKYLL_ENV=production bundle exec jekyll build --verbose
           cd ..
           ls
-      - uses: w9jds/firebase-action@90c848b4861dbd006c5ae9e7f23614018f5bac3e
+      - name: Verify build output
+        run: |
+          echo "Checking build artifacts..."
+          ls -la blog/_site/ || (echo "ERROR: blog/_site not found" && exit 1)
+          ls -la index.html || (echo "ERROR: index.html not found" && exit 1)
+      - name: Deploy to Firebase Hosting
+        uses: w9jds/firebase-action@v14.15.1
         with:
-          args: deploy --only hosting
+          args: deploy --only hosting --non-interactive --force
         env:
-           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-           NODE_OPTIONS: "--max-old-space-size=8192"
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          NODE_OPTIONS: "--max-old-space-size=4096"
