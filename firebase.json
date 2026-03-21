@@ -2,12 +2,13 @@
   "hosting": [
     {
       "target": "website",
-      "public": "/",
+      "public": ".",
       "ignore": [
         "firebase.json",
         "**/.*",
         "**/node_modules/**",
-        "**blog/**"
+        "**/blog/**",
+        "**/scripts/**"
       ],
       "rewrites": [
         {

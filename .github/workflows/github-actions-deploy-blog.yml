@@ -9,7 +9,7 @@ jobs:
   deploy-site:
     runs-on: ubuntu-latest
     env:
-      NODE_OPTIONS: "--max-old-space-size=8192"
+      NODE_OPTIONS: "--max-old-space-size=12288 --no-deprecation"
       ACTIONS_STEP_DEBUG: true
       ACTIONS_RUNNER_DEBUG: true
     steps:
@@ -37,10 +37,17 @@ jobs:
           echo "Checking build artifacts..."
           ls -la blog/_site/ || (echo "ERROR: blog/_site not found" && exit 1)
           ls -la index.html || (echo "ERROR: index.html not found" && exit 1)
-      - name: Deploy to Firebase Hosting
+      - name: Deploy website to Firebase Hosting
         uses: w9jds/firebase-action@v15.11.0
         with:
-          args: deploy --only hosting --non-interactive --force
+          args: deploy --only hosting:website --non-interactive --force
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          NODE_OPTIONS: "--max-old-space-size=8192"
+          NODE_OPTIONS: "--max-old-space-size=12288 --no-deprecation"
+      - name: Deploy blog to Firebase Hosting
+        uses: w9jds/firebase-action@v15.11.0
+        with:
+          args: deploy --only hosting:blog --non-interactive --force
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          NODE_OPTIONS: "--max-old-space-size=12288 --no-deprecation"
