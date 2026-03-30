@@ -1,7 +1,7 @@
 
 ---
 layout: post
-title: "The Importance of Property-Based Testing in the Vibe Coding Era"
+title: "Adding Property Based testing in your Vibe Coding workflow: FIDE Swiss pairing use case"
 date: 2026-03-17
 categories: ["testing", "property-based-testing", "ai", "vibe-coding", "android"]
 ---
